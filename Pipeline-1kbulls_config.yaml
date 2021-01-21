@@ -1,0 +1,22 @@
+project-folder: "/scratch/project_2002561/1kBulls/Run9"                                               # Path to the project folder
+reference: "/scratch/project_200251/1kBulls/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
+fa-adapter: "INSIDE THE DOCKER IMAGE!!!"
+local-scratch: $LOCAL_SCRATCH
+
+params:
+  trimmomatic:
+    threads: 20
+    illuminaclip: "${ADAPTERfasta}:2:30:3:1:true"
+    leading: 20 
+    trailing: 20  
+    slidingwindow: "3:15"  
+    avgqual: 20
+    minlen: 35 
+  fastqc:
+    threads: 20
+  bwa:
+    rgid: "Here you have to add the read lane number"
+    rgpl: "ILLUMINA"
+    rgsm: "Here needs to be the internation animal ID"
+singularity:
+  1kbulls: "docker://fischuu/1kbulls:0.1"

@@ -1,0 +1,35 @@
+__default__:
+    time: 00:30:00
+    job-name:  1kBulls
+    account: project_2002561
+    ntasks: 1
+    cpus-per-task: 1
+    mem-per-cpu: 4000
+    partition: small
+    working-directory: /scratch/project_2002561/1kbulls/logs/
+    nvme: 0
+
+# Step1 - Preparations
+################################################################################
+Concatenate_lanes:
+    job-name: Concatenate_lanes
+
+# Step2 - Trimming
+################################################################################
+Trim_data:
+    time: 04:00:00
+    job-name: Trim_data
+    cpus-per-task: 20
+
+# Step3 - QC
+################################################################################
+fastqc_quality_control_raw_data:
+    time: 04:00:00
+    job-name: FastQC_raw_data
+    cpus-per-task: 20
+
+# Step4 - Alignment
+################################################################################
+Align_data:
+
+sort_and_index:
