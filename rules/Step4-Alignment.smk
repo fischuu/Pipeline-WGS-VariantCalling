@@ -39,3 +39,24 @@ rule sort_and_index:
         samtools sort -o {output} -O BAM {input}
         samtools index {output}
     """
+             
+rule mark_duplictes:
+    """
+    Mark the duplicates in the BAM files
+    """
+    input:
+        "%s/BAM/"${OutputFile}-pe.sorted.bam" % (config["project-folder"])
+    output:
+        bam="%s/BAM/"${OutputFile}-pe.dedup.bam" % (config["project-folder"]),
+        metric="%s/BAM/"${OutputFile}-pe.dedup.metrics" % (config["project-folder"])
+    log:
+        "%s/logs/Picard/Deduplicate_{samples}.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/Picard/Deplicate_{samples}.benchmark.tsv" % (config["project-folder"])
+    params:
+        dist=config["params"]["picard"]["distance"]
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+        java -Xmx80G -jar /usr/local/picard/2.18.2/picard.jar MarkDuplicates I={input} O={output.bam} M={output.metric} \
+        OPTICAL_DUPLICATE_PIXEL_DISTANCE={params.dist} CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT
+    """
