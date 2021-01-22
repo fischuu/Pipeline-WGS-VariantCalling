@@ -20,3 +20,37 @@ rule Concatenate_lanes:
         cat {params.infolder}/{wildcards.samples}*_R1_001.fastq.gz > {output.R1} 2> {log}
         cat {params.infolder}/{wildcards.samples}*_R2_001.fastq.gz > {output.R2} 2> {log}
   	"""    
+        
+rule Download_reference:
+    """
+    Download the suggested reference genome
+    """
+    input:
+    output: 
+        "%s/Reference/XXX.gz" % (config["project-folder"]
+    log:
+        "%s/logs/Bash/ReferenceDownload.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/Bash/ReferenceDownload.benchmark.tsv" % (config["project-folder"])
+    params:
+       url=config["reference-url"]
+    shell:"""
+        wget {params.url} && mv {output}
+  	"""    
+                                 
+rule Index_reference:
+    """
+    Create the bwa index for the reference genome
+    """
+    input:
+       "%s/Reference/XXX.gz" % (config["project-folder"]
+    output: 
+        "%s/Reference/XXX.gz.bwa" % (config["project-folder"]
+    log:
+        "%s/logs/Bwa/IndexReference.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/Bwa/IndexReference.benchmark.tsv" % (config["project-folder"])
+    shell:"""
+        bwa mem index
+  	"""    
+                                 
