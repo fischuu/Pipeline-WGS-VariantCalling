@@ -4,10 +4,10 @@ rule Align_data:
     """
     input:
         R1="%s/FASTQ/TRIMMED/{samples}_R1.fastq.gz" % (config["project-folder"]),
-        R2="%s/FASTQ/TRIMMED/{samples}_R2.fastq.gz" % (config["project-folder"])
-        ref=config["reference]
-    output:
-        temp("%s/SAM/"${OutputFile}-pe.sam" % (config["project-folder"]))
+        R2="%s/FASTQ/TRIMMED/{samples}_R2.fastq.gz" % (config["project-folder"]),
+        ref=config["reference"]
+    output: 
+        temp("%s/SAM/{samples}-pe.sam" % (config["project-folder"]))
     log:
         "%s/logs/Bwa/alignFastq_{samples}.log" % (config["project-folder"])
     benchmark:
@@ -27,9 +27,9 @@ rule sort_and_index:
     Sort and index the alignments (samtools).
     """
     input:
-        "%s/SAM/"${OutputFile}-pe.sam" % (config["project-folder"])
+        "%s/SAM/{samples}-pe.sam" % (config["project-folder"])
     output:
-        "%s/BAM/"${OutputFile}-pe.sorted.bam" % (config["project-folder"])
+        "%s/BAM/{samples}-pe.sorted.bam" % (config["project-folder"])
     log:
         "%s/logs/Samtools/sortIndexFastq_{samples}.log" % (config["project-folder"])
     benchmark:
@@ -45,10 +45,10 @@ rule mark_duplictes:
     Mark the duplicates in the BAM files
     """
     input:
-        "%s/BAM/"${OutputFile}-pe.sorted.bam" % (config["project-folder"])
+        "%s/BAM/{samples}-pe.sorted.bam" % (config["project-folder"])
     output:
-        bam="%s/BAM/"${OutputFile}-pe.dedup.bam" % (config["project-folder"]),
-        metric="%s/BAM/"${OutputFile}-pe.dedup.metrics" % (config["project-folder"])
+        bam="%s/BAM/{samples}-pe.dedup.bam" % (config["project-folder"]),
+        metric="%s/BAM/{samples}-pe.dedup.metrics" % (config["project-folder"])
     log:
         "%s/logs/Picard/Deduplicate_{samples}.log" % (config["project-folder"])
     benchmark:

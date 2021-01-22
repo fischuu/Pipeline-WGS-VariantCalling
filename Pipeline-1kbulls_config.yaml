@@ -1,6 +1,12 @@
-project-folder: "/scratch/project_2002561/1kBulls/Run9"                                               # Path to the project folder
-reference: "/scratch/project_200251/1kBulls/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
+project-folder: "/scratch/project_2001454/Run9"                                               # Path to the project folder
+reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
+reference-url: "https://sites.ualberta.ca/~stothard/1000_bull_genomes/ARS-UCD1.2_Btau5.0.1Y.fa.gz"
+reference-index: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa.bai"
+rawsamples: "/scratch/project_2001454/Run9/rawsamples"
+samples: "/scratch/project_2001454/Run9/samples"
 fa-adapter: "INSIDE THE DOCKER IMAGE!!!"
+known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf.gz"
+known-variants-url: "http://www.1000bullgenomes.com/doco/ARS1.2PlusY_BQSR_v3.vcf.gz"
 local-scratch: $LOCAL_SCRATCH
 
 params:
@@ -18,5 +24,9 @@ params:
     rgid: "Here you have to add the read lane number"
     rgpl: "ILLUMINA"
     rgsm: "Here needs to be the internation animal ID"
+  picard:
+    distance: 2500 #100 for data generated on non-arrayed flowcells (ie from GAIIx, HiSeq1500/2000/2500), or 2500 for arrayed flowcell data (eg HiSeqX, HiSeq3000/4000, NovaSeq)
+  gatk:
+    threads: 20
 singularity:
   1kbulls: "docker://fischuu/1kbulls:0.1"

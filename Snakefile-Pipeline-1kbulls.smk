@@ -10,7 +10,7 @@ report: "report/workflow.rst"
 ##### Version: 0.1
 
 ##### set minimum snakemake version #####
-#min_version("5.30")
+min_version("5.32")
 
 ##### load config and sample sheets #####
 
@@ -36,3 +36,4 @@ include: "rules/Step1-Preparations.smk"
 include: "rules/Step2-Trimming.smk"
 include: "rules/Step3-QC.smk"
 include: "rules/Step4-Alignment.smk"
+include: "rules/Step5-VariantCalling.smk"

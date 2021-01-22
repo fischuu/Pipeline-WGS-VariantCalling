@@ -3,16 +3,16 @@ rule BaseRecalibration:
     Perform the base recalibration (PICARD)
     """
     input:
-        bam="%s/BAM/"${OutputFile}-pe.dedup.bam" % (config["project-folder"]),
+        bam="%s/BAM/{samples}-pe.dedup.bam" % (config["project-folder"]),
         ref=config["reference"]
     output:
-        "%s/GATK/recal/${OutputFile}.recal.table" % (config["project-folder"])
+        "%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
     log:
         "%s/logs/GATK/Recalibrate_{samples}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/Recalibrate_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
-        threads=config["params"]["gatk"]["threads"]
+        threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
@@ -25,17 +25,17 @@ rule PrintReads:
     Print reads (PICARD)
     """
     input:
-        bam="%s/BAM/"${OutputFile}-pe.dedub.bam" % (config["project-folder"]),
+        bam="%s/BAM/{samples}-pe.dedub.bam" % (config["project-folder"]),
         ref=config["reference"],
-        recal="%s/GATK/recal/${OutputFile}.recal.table" % (config["project-folder"])
+        recal="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
     output:
-        "%s/BAM/"${OutputFile}-pe.dedub.recal.bam" % (config["project-folder"])        
+        "%s/BAM/{samples}-pe.dedub.recal.bam" % (config["project-folder"])        
     log:
         "%s/logs/GATK/PrintReads_{samples}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/PrintReads_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
-        threads=config["params"]["gatk"]["threads"]
+        threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
@@ -47,12 +47,12 @@ rule AnalyzeCovariates:
     Analyze Covariates (PICARD)
     """
     input:
-        bam="%s/BAM/"${OutputFile}-pe.dedub.bam" % (config["project-folder"]),
+        bam="%s/BAM/{samples}-pe.dedub.bam" % (config["project-folder"]),
         ref=config["reference"],
-        recal="%s/GATK/recal/${OutputFile}.recal.table" % (config["project-folder"])
+        recal="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
     output:
-        table="%s/GATK/recal/after_recal.table" % (config["project-folder"]),
-        pdf="%s/GATK/recal/after_recal.table" % (config["project-folder"])
+        table="%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"]),
+        pdf="%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"])
     log:
         "%s/logs/GATK/AnalyzeCovariates_{samples}.log" % (config["project-folder"])
     benchmark:
@@ -61,5 +61,3 @@ rule AnalyzeCovariates:
     shell:"""
         java -Xmx80G -jar $GATK.jar –T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf}
     """
- 
-An example GATK AnalyzeCovariates command

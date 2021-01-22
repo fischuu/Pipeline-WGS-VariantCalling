@@ -20,22 +20,36 @@ rule Concatenate_lanes:
         cat {params.infolder}/{wildcards.samples}*_R1_001.fastq.gz > {output.R1} 2> {log}
         cat {params.infolder}/{wildcards.samples}*_R2_001.fastq.gz > {output.R2} 2> {log}
   	"""    
+
+rule Download_known_variants:
+    """
+    Download the suggested reference genome
+    """
+    input: 
+        config["known-variants-url"]
+    output: 
+        config["known-variants"]
+    log: 
+        "%s/logs/Bash/VariantsDownload.log" % (config["project-folder"])
+    benchmark: 
+        "%s/benchmark/Bash/VariantsDownload.benchmark.tsv" % (config["project-folder"])
+    shell:"""
+        wget {input} && mv {output}
+  	"""    
         
 rule Download_reference:
     """
     Download the suggested reference genome
     """
-    input:
+    input: config["reference-url"]
     output: 
-        "%s/Reference/XXX.gz" % (config["project-folder"]
+        config["reference"]
     log:
         "%s/logs/Bash/ReferenceDownload.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Bash/ReferenceDownload.benchmark.tsv" % (config["project-folder"])
-    params:
-       url=config["reference-url"]
     shell:"""
-        wget {params.url} && mv {output}
+        wget {input} && mv {output}
   	"""    
                                  
 rule Index_reference:
@@ -43,9 +57,9 @@ rule Index_reference:
     Create the bwa index for the reference genome
     """
     input:
-       "%s/Reference/XXX.gz" % (config["project-folder"]
+       config["reference"]
     output: 
-        "%s/Reference/XXX.gz.bwa" % (config["project-folder"]
+       config["reference-index"]
     log:
         "%s/logs/Bwa/IndexReference.log" % (config["project-folder"])
     benchmark:

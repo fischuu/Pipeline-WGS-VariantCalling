@@ -17,7 +17,6 @@ rule Trim_data:
         "%s/benchmark/Trimmomatic/{samples}.benchmark.tsv" % (config["project-folder"])
     params:
       threads=config["params"]["trimmomatic"]["threads"],
-      minlen=config["params"]["trimmomatic"]["minlen"],
       faadapter=config["fa-adapter"],
       leading=config["params"]["trimmomatic"]["leading"], 
       trailing=config["params"]["trimmomatic"]["trailing"],  
