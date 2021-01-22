@@ -25,31 +25,33 @@ rule Download_known_variants:
     """
     Download the suggested reference genome
     """
-    input: 
-        config["known-variants-url"]
     output: 
         config["known-variants"]
     log: 
         "%s/logs/Bash/VariantsDownload.log" % (config["project-folder"])
     benchmark: 
         "%s/benchmark/Bash/VariantsDownload.benchmark.tsv" % (config["project-folder"])
+    params:
+        url=config["urls"]["known-variants"]
     shell:"""
-        wget {input} && mv {output}
+        wget {params.url}
+        mv `basename {params.url}` {output}
   	"""    
         
 rule Download_reference:
     """
     Download the suggested reference genome
     """
-    input: config["reference-url"]
     output: 
         config["reference"]
     log:
         "%s/logs/Bash/ReferenceDownload.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Bash/ReferenceDownload.benchmark.tsv" % (config["project-folder"])
+    params:
+       url=config["urls"]["reference"]
     shell:"""
-        wget {input} && mv {output}
+        curl {params.url} > {output}
   	"""    
                                  
 rule Index_reference:

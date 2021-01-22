@@ -2,6 +2,11 @@
 import pandas as pd
 from snakemake.utils import validate, min_version
 
+import os
+from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+
+HTTP = HTTPRemoteProvider()
+
 report: "report/workflow.rst"
 
 ##### RNASeq-snakemake pipeline #####
@@ -27,6 +32,8 @@ wildcard_constraints:
 
 rule all:
     input:
+      config["known-variants"],
+      config["reference"]
 
 ### setup report #####
 report: "report/workflow.rst"

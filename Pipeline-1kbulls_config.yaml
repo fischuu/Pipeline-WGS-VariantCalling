@@ -1,13 +1,15 @@
 project-folder: "/scratch/project_2001454/Run9"                                               # Path to the project folder
 reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
-reference-url: "https://sites.ualberta.ca/~stothard/1000_bull_genomes/ARS-UCD1.2_Btau5.0.1Y.fa.gz"
 reference-index: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa.bai"
 rawsamples: "/scratch/project_2001454/Run9/rawsamples"
 samples: "/scratch/project_2001454/Run9/samples"
 fa-adapter: "INSIDE THE DOCKER IMAGE!!!"
 known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf.gz"
-known-variants-url: "http://www.1000bullgenomes.com/doco/ARS1.2PlusY_BQSR_v3.vcf.gz"
 local-scratch: $LOCAL_SCRATCH
+
+urls:
+    known-variants: "http://www.1000bullgenomes.com/doco/ARS1.2PlusY_BQSR_v3.vcf.gz"
+    reference: "https://sites.ualberta.ca/~stothard/1000_bull_genomes/ARS-UCD1.2_Btau5.0.1Y.fa.gz"
 
 params:
   trimmomatic:
