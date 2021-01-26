@@ -33,7 +33,9 @@ rule all:
     input:
       config["known-variants"],
       config["reference-index"],
-      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples)
+      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples)
 
 ### setup report #####
 report: "report/workflow.rst"
