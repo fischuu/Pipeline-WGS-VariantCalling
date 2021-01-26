@@ -33,7 +33,7 @@ wildcard_constraints:
 rule all:
     input:
       config["known-variants"],
-      config["reference"]
+      config["reference-index"]
 
 ### setup report #####
 report: "report/workflow.rst"
