@@ -3,22 +3,22 @@ rule Align_data:
     Align the data (bwa).
     """
     input:
-        R1="%s/FASTQ/TRIMMED/{samples}_R1.fastq.gz" % (config["project-folder"]),
-        R2="%s/FASTQ/TRIMMED/{samples}_R2.fastq.gz" % (config["project-folder"]),
+        R1="%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]),
+        R2="%s/FASTQ/TRIMMED/{rawsamples}_R2.fastq.gz" % (config["project-folder"]),
         ref=config["reference"]
     output: 
-        temp("%s/SAM/{samples}-pe.sam" % (config["project-folder"]))
+        temp("%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"]))
     log:
-        "%s/logs/Bwa/alignFastq_{samples}.log" % (config["project-folder"])
+        "%s/logs/Bwa/alignFastq_{rawsamples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/Bwa/{samples}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/Bwa/{rawsamples}.benchmark.tsv" % (config["project-folder"])
     params:
-        rgid="LANE NUMBER FROM {RAWSAMPLE}",
-        rgpl=config["params"]["bwa"]["rgpl"],
-        rgsm=config["params"]["bwa"]["rgsm"]
+        rgid = lambda wildcards: list(samplesheet.lane[samplesheet.rawsample == wildcards.rawsamples]),
+        rgpl = config["params"]["bwa"]["rgpl"],
+        rgsm = lambda wildcards: list(samplesheet.intid[samplesheet.rawsample == wildcards.rawsamples])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-          bwa mem -M -t 12 -R @RG\\tID:{parama.rgid}\\tPL:{params.rgpl}\\tSM:{params.rgsm} \
+          bwa mem -M -t 12 -R @RG\\tID:{params.rgid}\\tPL:{params.rgpl}\\tSM:{params.rgsm} \
           {input.ref} {input.R1} {input.R2} > {output}
   	"""
   	
@@ -27,19 +27,27 @@ rule sort_and_index:
     Sort and index the alignments (samtools).
     """
     input:
-        "%s/SAM/{samples}-pe.sam" % (config["project-folder"])
+        "%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"])
     output:
-        "%s/BAM/{samples}-pe.sorted.bam" % (config["project-folder"])
+        "%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"])
     log:
-        "%s/logs/Samtools/sortIndexFastq_{samples}.log" % (config["project-folder"])
+        "%s/logs/Samtools/sortIndexFastq_{rawsamples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/Samtools/{samples}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/Samtools/{rawsamples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
         samtools sort -o {output} -O BAM {input}
         samtools index {output}
     """
              
+#rule merge_sam_files:
+#    """
+#    Merge the lane-wise BAM-files into sample-wise BAMs
+#    """
+#    
+#java -Xmx80G -jar  /usr/local/picard/2.1.0/picard.jar MergeSamFiles ${BAMlist} O= ${INTERNATIONALID}.sorted.bam VALIDATION_STRINGENCY=LENIENT #ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true
+
+
 rule mark_duplictes:
     """
     Mark the duplicates in the BAM files

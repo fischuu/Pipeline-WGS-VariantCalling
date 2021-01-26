@@ -19,7 +19,13 @@ min_version("5.32")
 
 ##### load config and sample sheets #####
 
-rawsamples = pd.read_table(config["samplesheet"], header=None)[0].tolist()
+#rawsamples = pd.read_table(config["samplesheet"], header=None)[0].tolist()
+#intid = pd.read_table(config["samplesheet"], header=None)[1].tolist()
+#lane = pd.read_table(config["samplesheet"], header=None)[2].tolist()
+
+samplesheet = pd.read_table(config["samplesheet"]).set_index("rawsample", drop=False)
+rawsamples= list(samplesheet.rawsample)
+
 
 workdir: config["project-folder"]
 
@@ -32,10 +38,11 @@ wildcard_constraints:
 rule all:
     input:
       config["known-variants"],
-      config["reference-index"],
-      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples),
+#      config["reference-index"],
+#      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
-      expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples)
+      expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
 
 ### setup report #####
 report: "report/workflow.rst"
