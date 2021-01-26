@@ -1,7 +1,7 @@
 project-folder: "/scratch/project_2001454/Run9"                                               # Path to the project folder
 reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
 reference-index: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa.bai"
-rawsamples: "/scratch/project_2001454/Run9/rawsamples"
+samplesheet: "/scratch/project_2001454/Run9/sampleSheet.tsv"
 samples: "/scratch/project_2001454/Run9/samples"
 fa-adapter: "INSIDE THE DOCKER IMAGE!!!"
 known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf.gz"

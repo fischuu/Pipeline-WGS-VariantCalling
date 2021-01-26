@@ -19,21 +19,21 @@ min_version("5.32")
 
 ##### load config and sample sheets #####
 
-rawsamples = pd.read_table(config["rawsamples"], header=None)[0].tolist()
-samples = pd.read_table(config["samples"], header=None)[0].tolist()
+rawsamples = pd.read_table(config["samplesheet"], header=None)[0].tolist()
 
 workdir: config["project-folder"]
 
 wildcard_constraints:
     rawsamples="|".join(rawsamples),
-    samples="|".join(samples)
+#    samples="|".join(samples)
 
 ##### run complete pipeline #####
 
 rule all:
     input:
       config["known-variants"],
-      config["reference-index"]
+      config["reference-index"],
+      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples)
 
 ### setup report #####
 report: "report/workflow.rst"
