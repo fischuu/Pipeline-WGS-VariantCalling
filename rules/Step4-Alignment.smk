@@ -7,15 +7,15 @@ rule Align_data:
         R2="%s/FASTQ/TRIMMED/{rawsamples}_R2.fastq.gz" % (config["project-folder"]),
         ref=config["reference"]
     output: 
-        temp("%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"]))
+        "%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"])
     log:
         "%s/logs/Bwa/alignFastq_{rawsamples}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Bwa/{rawsamples}.benchmark.tsv" % (config["project-folder"])
     params:
-        rgid = lambda wildcards: list(samplesheet.lane[samplesheet.rawsample == wildcards.rawsamples]),
+        rgid = lambda wildcards: get_sample_lane({wildcards.rawsamples}),
         rgpl = config["params"]["bwa"]["rgpl"],
-        rgsm = lambda wildcards: list(samplesheet.intid[samplesheet.rawsample == wildcards.rawsamples])
+        rgsm = lambda wildcards: get_sample_intid({wildcards.rawsamples})
     singularity: config["singularity"]["1kbulls"]
     shell:"""
           bwa mem -M -t 12 -R @RG\\tID:{params.rgid}\\tPL:{params.rgpl}\\tSM:{params.rgsm} \
