@@ -3,7 +3,6 @@ reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
 reference-index: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa.bai"
 samplesheet: "/scratch/project_2001454/Run9/sampleSheet.tsv"
 samples: "/scratch/project_2001454/Run9/samples"
-fa-adapter: "INSIDE THE DOCKER IMAGE!!!"
 known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf.gz"
 local-scratch: $LOCAL_SCRATCH
 
@@ -14,7 +13,7 @@ urls:
 params:
   trimmomatic:
     threads: 20
-    illuminaclip: "${ADAPTERfasta}:2:30:3:1:true"
+    illuminaclip: "/Trimmomatic/adapters/TruSeq3-PE-2.fa:2:30:3:1:true"
     leading: 20 
     trailing: 20  
     slidingwindow: "3:15"  
@@ -23,9 +22,7 @@ params:
   fastqc:
     threads: 20
   bwa:
-    rgid: "Here you have to add the read lane number"
     rgpl: "ILLUMINA"
-    rgsm: "Here needs to be the internation animal ID"
   picard:
     distance: 2500 #100 for data generated on non-arrayed flowcells (ie from GAIIx, HiSeq1500/2000/2500), or 2500 for arrayed flowcell data (eg HiSeqX, HiSeq3000/4000, NovaSeq)
   gatk:

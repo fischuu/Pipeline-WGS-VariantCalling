@@ -17,7 +17,7 @@ rule Trim_data:
         "%s/benchmark/Trimmomatic/{rawsamples}.benchmark.tsv" % (config["project-folder"])
     params:
       threads=config["params"]["trimmomatic"]["threads"],
-      faadapter=config["fa-adapter"],
+      clipping=config["params"]["trimmomatic"]["illuminaclip"],
       leading=config["params"]["trimmomatic"]["leading"], 
       trailing=config["params"]["trimmomatic"]["trailing"],  
       slidingwindow=config["params"]["trimmomatic"]["slidingwindow"],
@@ -27,6 +27,6 @@ rule Trim_data:
     shell:"""
       java -jar /Trimmomatic-0.38/trimmomatic-0.38.jar PE -threads {params.threads} -summary {output.S} \
       {input.R1} {input.R2} {output.R1} {output.R1S} {output.R2} {output.R2S} \
-      MINLEN:{params.minlen} ILLUMINACLIP:{params.faadapter}:2:30:3:1:true LEADING:{params.leading} \
+      MINLEN:{params.minlen} ILLUMINACLIP:{params.clipping} LEADING:{params.leading} \
       TRAILING:{params.trailing} SLIDINGWINDOW:{params.slidingwindow} AVGQUAL:{params.avgqual} MINLEN:{params.minlen}
   	"""    
