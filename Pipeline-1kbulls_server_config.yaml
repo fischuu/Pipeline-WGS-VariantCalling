@@ -34,5 +34,7 @@ fastqc_quality_control_raw_data:
 # Step4 - Alignment
 ################################################################################
 Align_data:
-
+    time: 04:00:00
+    job-name: Align_data
+    cpus-per-task: 20
 sort_and_index:
