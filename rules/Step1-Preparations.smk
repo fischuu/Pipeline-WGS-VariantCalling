@@ -44,6 +44,6 @@ rule Index_reference:
     benchmark:
         "%s/benchmark/Bwa/IndexReference.benchmark.tsv" % (config["project-folder"])
     shell:"""
-        bwa mem index
+        bwa mem index {input}
   	"""    
                                  
