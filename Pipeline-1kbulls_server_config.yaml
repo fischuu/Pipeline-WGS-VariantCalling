@@ -30,6 +30,11 @@ fastqc_quality_control_raw_data:
     time: 04:00:00
     job-name: FastQC_raw_data
     cpus-per-task: 20
+    
+fastqc_quality_control_trimmed_data:
+    time: 04:00:00
+    job-name: FastQC_trimmed_data
+    cpus-per-task: 20
 
 # Step4 - Alignment
 ################################################################################
