@@ -19,7 +19,6 @@ Download_reference:
     
 Index_reference:
     time: 04:00:00
-    job-name: Index_reference
     cpus-per-task: 20
 
 # Step2 - Trimming
@@ -44,7 +43,10 @@ fastqc_quality_control_trimmed_data:
 # Step4 - Alignment
 ################################################################################
 Align_data:
-    time: 04:00:00
+    time: 0-12:00:00
     job-name: Align_data
     cpus-per-task: 20
+    
 sort_and_index:
+    time: 0-04:00:00
+    job-name: Sort_and_Index

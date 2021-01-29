@@ -37,7 +37,7 @@ rule all:
       expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"]), rawsamples=rawsamples),
-#      expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
+      expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
 
 ### setup report #####
 report: "report/workflow.rst"

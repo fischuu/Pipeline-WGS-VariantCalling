@@ -8,7 +8,7 @@ rule Align_data:
         ref=config["reference"],
         index=config["reference-index"]
     output: 
-        "%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"])
+        temp("%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"]))
     log:
         "%s/logs/Bwa/alignFastq_{rawsamples}.log" % (config["project-folder"])
     benchmark:
