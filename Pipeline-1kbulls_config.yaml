@@ -23,6 +23,7 @@ params:
     threads: 20
   bwa:
     rgpl: "ILLUMINA"
+    threads: 20
   picard:
     distance: 2500 #100 for data generated on non-arrayed flowcells (ie from GAIIx, HiSeq1500/2000/2500), or 2500 for arrayed flowcell data (eg HiSeqX, HiSeq3000/4000, NovaSeq)
   gatk:

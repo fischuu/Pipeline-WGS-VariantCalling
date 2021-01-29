@@ -16,11 +16,12 @@ rule Align_data:
     params:
         rgid = lambda wildcards: list(samplesheet.lane[samplesheet.rawsample == wildcards.rawsamples]),
         rgpl = config["params"]["bwa"]["rgpl"],
-        rgsm = lambda wildcards: list(samplesheet.intid[samplesheet.rawsample == wildcards.rawsamples])
+        rgsm = lambda wildcards: list(samplesheet.intid[samplesheet.rawsample == wildcards.rawsamples]),
+        threads = config["params"]["bwa"]["threads"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-          bwa mem -M -t 12 -R \"@RG\\tID:{params.rgid}\\tPL:{params.rgpl}\\tSM:{params.rgsm}\" \
-          {input.ref} {input.R1} {input.R2} > {output}touch {output}
+          bwa mem -M -t {params.threads} -R \"@RG\\tID:{params.rgid}\\tPL:{params.rgpl}\\tSM:{params.rgsm}\" \
+          {input.ref} {input.R1} {input.R2} > {output} 2> {log}
   	"""
   	
 rule sort_and_index:
