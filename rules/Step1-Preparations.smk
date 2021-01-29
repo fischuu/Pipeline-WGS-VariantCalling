@@ -43,7 +43,8 @@ rule Index_reference:
         "%s/logs/Bwa/IndexReference.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Bwa/IndexReference.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
     shell:"""
-        bwa mem index {input}
+        bwa index {input} &> {log}
   	"""    
                                  

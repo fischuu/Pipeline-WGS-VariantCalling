@@ -16,6 +16,11 @@ Download_known_variants:
 
 Download_reference:
     time: 0-05:00:00
+    
+Index_reference:
+    time: 04:00:00
+    job-name: Index_reference
+    cpus-per-task: 20
 
 # Step2 - Trimming
 ################################################################################
