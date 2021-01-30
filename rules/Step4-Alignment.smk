@@ -84,7 +84,7 @@ rule merge_bam_files:
     benchmark:
         "%s/benchmark/Picard/merge_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
-    run:
-        inputstr = " ".join(["INPUT={}".format(x) for x in input])
-        shell(java -Xmx80G -jar  /picard.jar MergeSamFiles {inputstr} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true")
+    shell:"""
+       java -Xmx80G -jar  /picard.jar MergeSamFiles I={input.de} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
+    """
 
