@@ -65,8 +65,6 @@ rule mark_duplictes:
 
 
 # THIS IS REALLY BADLY HARD-CODED BUT FOR NOW A QUICK FIX!!!! USE THE BELOW STARTED FUNCTION LATER!!!
-def merge_files(wildcards):
-        return glob(wildcards + ".L00[1-4]+pe\.sorted\.bam")
 
 rule merge_bam_files:
     """
@@ -76,7 +74,8 @@ rule merge_bam_files:
         de=["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]),
             "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]),
             "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]),
-            "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])]
+            "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])],
+        fake=expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
     output:
         "%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"])
     log:
@@ -84,7 +83,11 @@ rule merge_bam_files:
     benchmark:
         "%s/benchmark/Picard/merge_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
+    params: " I=".join( ["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]), \
+                          "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]), \
+                          "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]), \
+                          "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])])
     shell:"""
-       java -Xmx80G -jar  /picard.jar MergeSamFiles I={input.de} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
+       java -Xmx80G -jar  /picard.jar MergeSamFiles I={params} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
     """
 
