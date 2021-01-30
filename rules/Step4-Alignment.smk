@@ -73,10 +73,10 @@ rule merge_bam_files:
     Merge the lane-wise BAM-files into sample-wise BAMs
     """
     input:
-        ["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]),
-         "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]),
-         "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]),
-         "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])]
+        de=["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]),
+            "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]),
+            "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]),
+            "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])]
     output:
         "%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"])
     log:
@@ -84,7 +84,7 @@ rule merge_bam_files:
     benchmark:
         "%s/benchmark/Picard/merge_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
-    shell:"""
-       java -Xmx80G -jar  /picard.jar MergeSamFiles {input} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
-    """
+    run:
+        inputstr = " ".join(["INPUT={}".format(x) for x in input])
+        shell(java -Xmx80G -jar  /picard.jar MergeSamFiles {inputstr} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true")
 
