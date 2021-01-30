@@ -26,7 +26,6 @@ workdir: config["project-folder"]
 wildcard_constraints:
     rawsamples="|".join(rawsamples),
     intid="|".join(intid)
-#    samples="|".join(samples)
   
 ##### run complete pipeline #####
 

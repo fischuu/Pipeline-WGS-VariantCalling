@@ -42,6 +42,28 @@ rule sort_and_index:
         samtools index {output}
     """
 
+rule mark_duplictes:
+    """
+    Mark the duplicates in the BAM files
+    """
+    input:
+        "%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"])
+    output:
+        bam="%s/BAM/{rawsamples}-pe.dedup.bam" % (config["project-folder"]),
+        metric="%s/BAM/{rawsamples}-pe.dedup.metrics" % (config["project-folder"])
+    log:
+        "%s/logs/Picard/Deduplicate_{rawsamples}.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/Picard/Deplicate_{rawsamples}.benchmark.tsv" % (config["project-folder"])
+    params:
+        dist=config["params"]["picard"]["distance"]
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+        java -Xmx80G -jar /usr/local/picard/2.18.2/picard.jar MarkDuplicates I={input} O={output.bam} M={output.metric} \
+        OPTICAL_DUPLICATE_PIXEL_DISTANCE={params.dist} CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT
+    """
+
+
 # THIS IS REALLY BADLY HARD-CODED BUT FOR NOW A QUICK FIX!!!! USE THE BELOW STARTED FUNCTION LATER!!!
 def merge_files(wildcards):
         return glob(wildcards + ".L00[1-4]+pe\.sorted\.bam")
@@ -51,10 +73,10 @@ rule merge_bam_files:
     Merge the lane-wise BAM-files into sample-wise BAMs
     """
     input:
-        ["%s/BAM/{intid}_L001-pe.sorted.bam" % (config["project-folder"]),
-         "%s/BAM/{intid}_L002-pe.sorted.bam" % (config["project-folder"]),
-         "%s/BAM/{intid}_L003-pe.sorted.bam" % (config["project-folder"]),
-         "%s/BAM/{intid}_L004-pe.sorted.bam" % (config["project-folder"])]
+        ["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]),
+         "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]),
+         "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]),
+         "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])]
     output:
         "%s/BAM/{intid}.sorted.bam" % (config["project-folder"])
     log:
@@ -66,23 +88,3 @@ rule merge_bam_files:
        java -Xmx80G -jar  /usr/local/picard/2.1.0/picard.jar MergeSamFiles {input} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true
     """
 
-rule mark_duplictes:
-    """
-    Mark the duplicates in the BAM files
-    """
-    input:
-        "%s/BAM/{samples}-pe.sorted.bam" % (config["project-folder"])
-    output:
-        bam="%s/BAM/{samples}-pe.dedup.bam" % (config["project-folder"]),
-        metric="%s/BAM/{samples}-pe.dedup.metrics" % (config["project-folder"])
-    log:
-        "%s/logs/Picard/Deduplicate_{samples}.log" % (config["project-folder"])
-    benchmark:
-        "%s/benchmark/Picard/Deplicate_{samples}.benchmark.tsv" % (config["project-folder"])
-    params:
-        dist=config["params"]["picard"]["distance"]
-    singularity: config["singularity"]["1kbulls"]
-    shell:"""
-        java -Xmx80G -jar /usr/local/picard/2.18.2/picard.jar MarkDuplicates I={input} O={output.bam} M={output.metric} \
-        OPTICAL_DUPLICATE_PIXEL_DISTANCE={params.dist} CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT
-    """
