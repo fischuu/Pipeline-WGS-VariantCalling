@@ -41,14 +41,30 @@ rule sort_and_index:
         samtools sort -o {output} -O BAM {input}
         samtools index {output}
     """
-             
-#rule merge_sam_files:
-#    """
-#    Merge the lane-wise BAM-files into sample-wise BAMs
-#    """
-#    
-#java -Xmx80G -jar  /usr/local/picard/2.1.0/picard.jar MergeSamFiles ${BAMlist} O= ${INTERNATIONALID}.sorted.bam VALIDATION_STRINGENCY=LENIENT #ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true
 
+# THIS IS REALLY BADLY HARD-CODED BUT FOR NOW A QUICK FIX!!!! USE THE BELOW STARTED FUNCTION LATER!!!
+def merge_files(wildcards):
+        return glob(wildcards + ".L00[1-4]+pe\.sorted\.bam")
+
+rule merge_bam_files:
+    """
+    Merge the lane-wise BAM-files into sample-wise BAMs
+    """
+    input:
+        ["%s/BAM/{intid}_L001-pe.sorted.bam" % (config["project-folder"]),
+         "%s/BAM/{intid}_L002-pe.sorted.bam" % (config["project-folder"]),
+         "%s/BAM/{intid}_L003-pe.sorted.bam" % (config["project-folder"]),
+         "%s/BAM/{intid}_L004-pe.sorted.bam" % (config["project-folder"])]
+    output:
+        "%s/BAM/{intid}.sorted.bam" % (config["project-folder"])
+    log:
+        "%s/logs/Picard/merge_{intid}.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/Picard/merge_{intid}.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+       java -Xmx80G -jar  /usr/local/picard/2.1.0/picard.jar MergeSamFiles {input} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true
+    """
 
 rule mark_duplictes:
     """

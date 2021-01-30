@@ -19,12 +19,13 @@ min_version("5.32")
 
 samplesheet = pd.read_table(config["samplesheet"]).set_index("rawsample", drop=False)
 rawsamples=list(samplesheet.rawsample)
-
+intid=list(samplesheet.intid)
 
 workdir: config["project-folder"]
 
 wildcard_constraints:
     rawsamples="|".join(rawsamples),
+    intid="|".join(intid)
 #    samples="|".join(samples)
   
 ##### run complete pipeline #####
@@ -36,8 +37,9 @@ rule all:
       expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
-      expand("%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"]), rawsamples=rawsamples),
-      expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
+#      expand("%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"]), rawsamples=rawsamples),
+#      expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/BAM/{intid}.sorted.bam" % (config["project-folder"]), intid=intid)
 
 ### setup report #####
 report: "report/workflow.rst"
