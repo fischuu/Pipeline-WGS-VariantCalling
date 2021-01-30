@@ -59,8 +59,8 @@ rule mark_duplictes:
         dist=config["params"]["picard"]["distance"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar /usr/local/picard/2.18.2/picard.jar MarkDuplicates I={input} O={output.bam} M={output.metric} \
-        OPTICAL_DUPLICATE_PIXEL_DISTANCE={params.dist} CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT
+        java -Xmx80G -jar /picard.jar MarkDuplicates I={input} O={output.bam} M={output.metric} \
+        OPTICAL_DUPLICATE_PIXEL_DISTANCE={params.dist} CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT &> {log}
     """
 
 
@@ -78,13 +78,13 @@ rule merge_bam_files:
          "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]),
          "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])]
     output:
-        "%s/BAM/{intid}.sorted.bam" % (config["project-folder"])
+        "%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"])
     log:
         "%s/logs/Picard/merge_{intid}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Picard/merge_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-       java -Xmx80G -jar  /usr/local/picard/2.1.0/picard.jar MergeSamFiles {input} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true
+       java -Xmx80G -jar  /picard.jar MergeSamFiles {input} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
     """
 

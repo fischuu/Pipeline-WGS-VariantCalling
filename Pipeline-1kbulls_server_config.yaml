@@ -50,3 +50,13 @@ Align_data:
 sort_and_index:
     time: 0-04:00:00
     job-name: Sort_and_Index
+    
+mark_duplictes:
+    job-name: mark_duplicates
+    time: 05:00:00
+    mem-per-cpu: 100000
+
+merge_bam_files:
+    job-name: merge_bam_files
+    time: 05:00:00
+    mem-per-cpu: 100000
