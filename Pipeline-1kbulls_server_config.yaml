@@ -60,3 +60,11 @@ merge_bam_files:
     job-name: merge_bam_files
     time: 05:00:00
     mem-per-cpu: 100000
+    
+# Step5 - VariantCalling
+################################################################################    
+BaseRecalibration:
+    time: 0-12:00:00
+    job-name: Base_recalibration
+    cpus-per-task: 20
+    mem-per-cpu: 4000
