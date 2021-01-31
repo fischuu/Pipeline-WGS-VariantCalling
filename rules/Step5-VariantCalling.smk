@@ -4,7 +4,8 @@ rule BaseRecalibration:
     """
     input:
         bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
-        ref=config["reference"]
+        ref=config["reference"],
+        fai=config["reference-fai"]
     output:
         "%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     log:
@@ -16,8 +17,8 @@ rule BaseRecalibration:
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar –T BaseRecalibrator –nct {params.threads} -R {input.ref} -I {input.bam} –knownSites: {params.known} \
-        -–bqsrBAQGapOpenPenalty 45 -o {output} &> {log}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T BaseRecalibrator -nct {params.threads} -R {input.ref} -I {input.bam} -knownSites: {params.known} \
+        --bqsrBAQGapOpenPenalty 45 -o {output} &> {log}
     """
 
 rule PrintReads:
@@ -25,39 +26,39 @@ rule PrintReads:
     Print reads (PICARD)
     """
     input:
-        bam="%s/BAM/{samples}-pe.dedub.bam" % (config["project-folder"]),
+        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
         ref=config["reference"],
-        recal="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
+        recal="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     output:
-        "%s/BAM/{samples}-pe.dedub.recal.bam" % (config["project-folder"])        
+        "%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"])        
     log:
-        "%s/logs/GATK/PrintReads_{samples}.log" % (config["project-folder"])
+        "%s/logs/GATK/PrintReads_{intid}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/PrintReads_{samples}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/PrintReads_{intid}.benchmark.tsv" % (config["project-folder"])
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar GATK.jar –T PrintReads –nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output}
+        java -Xmx80G -jar GATK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output}
     """
       
 rule AnalyzeCovariates:
-   """
+    """
     Analyze Covariates (PICARD)
     """
     input:
-        bam="%s/BAM/{samples}-pe.dedub.bam" % (config["project-folder"]),
+        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
         ref=config["reference"],
-        recal="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
+        table="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     output:
-        table="%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"]),
-        pdf="%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"])
+        table="%s/GATK/recal/{intid}_after_recal.table" % (config["project-folder"]),
+        pdf="%s/GATK/recal/{intid}_recal_plots.pdf" % (config["project-folder"])
     log:
-        "%s/logs/GATK/AnalyzeCovariates_{samples}.log" % (config["project-folder"])
+        "%s/logs/GATK/AnalyzeCovariates_{intid}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/AnalyzeCovariates_{samples}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/AnalyzeCovariates_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar $GATK.jar –T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf}
+        java -Xmx80G -jar $GATK.jar -T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf}
     """

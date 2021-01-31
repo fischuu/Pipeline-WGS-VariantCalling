@@ -48,3 +48,19 @@ rule Index_reference:
         bwa index {input} &> {log}
   	"""    
                                  
+rule Fai_Index_reference:
+    """
+    Create the fasta index for the reference genome
+    """
+    input:
+       config["reference"]
+    output: 
+       config["reference-fai"]
+    log:
+        "%s/logs/Samtools/IndexReference.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/Samtools/IndexReference.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+        samtools faidx {input} &> {log}
+  	"""    

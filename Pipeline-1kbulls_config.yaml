@@ -1,9 +1,10 @@
 project-folder: "/scratch/project_2001454/Run9"                                               # Path to the project folder
 reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
+reference-fai: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa.fai"
 reference-index: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa.amb"
 samplesheet: "/scratch/project_2001454/Run9/sampleSheet.tsv"
 samples: "/scratch/project_2001454/Run9/samples"
-known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf.gz"
+known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf"
 local-scratch: $LOCAL_SCRATCH
 
 urls:

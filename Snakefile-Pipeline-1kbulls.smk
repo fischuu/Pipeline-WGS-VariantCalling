@@ -33,11 +33,13 @@ rule all:
     input:
 #      config["known-variants"],
 #      config["reference-index"],
-      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples),
+#      expand("%s/FASTQ/TRIMMED/{rawsamples}_R1.fastq.gz" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
-      expand("%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]), intid=intid),
-      expand("%s/GATK/recal/{intid}.recal.table" % (config["project-folder"]), intid=intid)
+#      expand("%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]), intid=intid),
+#      expand("%s/GATK/recal/{intid}.recal.table" % (config["project-folder"]), intid=intid),
+      expand("%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]), intid=intid ),
+      expand("%s/GATK/recal/{intid}_recal_plots.pdf" % (config["project-folder"]), intid=intid)
 
 ### setup report #####
 report: "report/workflow.rst"
