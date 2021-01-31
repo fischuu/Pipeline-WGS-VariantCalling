@@ -48,7 +48,6 @@ rule AnalyzeCovariates:
     Analyze Covariates (PICARD)
     """
     input:
-        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
         ref=config["reference"],
         table="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     output:
