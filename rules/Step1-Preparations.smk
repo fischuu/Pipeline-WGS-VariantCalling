@@ -63,6 +63,6 @@ rule Fai_Index_reference:
         "%s/benchmark/Samtools/IndexReference.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-     java -Xmx40G -jar /picard.jar  CreateSequenceDictionary R={input} O={output.dict}
-    samtools faidx {input} &> {log}
+     java -Xmx40G -jar /picard.jar  CreateSequenceDictionary R={input} O={output.dict} &> {log}
+     samtools faidx {input} &> {log}
   	"""    

@@ -41,7 +41,7 @@ rule PrintReads:
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar GATK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output}
     """
       
 rule AnalyzeCovariates:
@@ -60,5 +60,26 @@ rule AnalyzeCovariates:
         "%s/benchmark/GATK/AnalyzeCovariates_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar $GATK.jar -T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf}
     """
+
+rule GATK_haplotypeCaller:
+    """
+    Create the gvcf files (GATK)
+    """
+    input:
+        ref=config["reference"],
+        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"])        
+    output:
+        "%s/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"])
+    log:
+        "%s/logs/GATK/HaplotypeCaller_{intid}.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/HaplotypeCaller_{intid}.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
+    params:
+        threads=config["params"]["gatk"]["threads"]
+    shell:"""
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T HaplotypeCaller -nct {params.threads} -R {input.ref} -I {input.bam} -o {output} -ERC GVCF -variant_index_type LINEAR -variant_index_parameter 128000
+    """
+

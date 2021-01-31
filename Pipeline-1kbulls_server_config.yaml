@@ -73,3 +73,21 @@ BaseRecalibration:
     job-name: Base_recalibration
     cpus-per-task: 20
     mem-per-cpu: 4000
+    
+PrintReads:
+    time: 0-12:00:00
+    job-name: Print_reads
+    cpus-per-task: 1
+    mem-per-cpu: 80000
+
+AnalyzeCovariates:
+    time: 0-12:00:00
+    job-name: Analyse_covariats
+    cpus-per-task: 1
+    mem-per-cpu: 80000
+
+GATK_haplotypeCaller:
+    time: 1-00:00:00
+    job-name: GATK_haplotypeCaller
+    cpus-per-task: 20
+    mem-per-cpu: 4000
