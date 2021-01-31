@@ -20,6 +20,11 @@ Download_reference:
 Index_reference:
     time: 04:00:00
     cpus-per-task: 20
+    
+Fai_Index_reference:
+    time: 04:00:00
+    job-name: GATK_index
+    mem-per-cpu: 40000
 
 # Step2 - Trimming
 ################################################################################

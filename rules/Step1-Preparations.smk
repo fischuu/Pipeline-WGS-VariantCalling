@@ -55,12 +55,14 @@ rule Fai_Index_reference:
     input:
        config["reference"]
     output: 
-       config["reference-fai"]
+       fai=config["reference-fai"],
+       dict=config["reference-dict"]
     log:
         "%s/logs/Samtools/IndexReference.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Samtools/IndexReference.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        samtools faidx {input} &> {log}
+     java -Xmx40G -jar /picard.jar  CreateSequenceDictionary R={input} O={output.dict}
+    samtools faidx {input} &> {log}
   	"""    

@@ -5,7 +5,8 @@ rule BaseRecalibration:
     input:
         bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
         ref=config["reference"],
-        fai=config["reference-fai"]
+        fai=config["reference-fai"],
+        dict=config["reference-dict"],
     output:
         "%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     log:
