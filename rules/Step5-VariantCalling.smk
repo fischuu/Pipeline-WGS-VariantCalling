@@ -4,6 +4,7 @@ rule BaseRecalibration:
     """
     input:
         bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
+        bai="%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"]),
         ref=config["reference"],
         fai=config["reference-fai"],
         dict=config["reference-dict"],
@@ -31,7 +32,8 @@ rule PrintReads:
         ref=config["reference"],
         recal="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     output:
-        "%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"])        
+        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),        
+        bai="%s/BAM/{intid}.dedub.recal.bam.bai" % (config["project-folder"]),        
     log:
         "%s/logs/GATK/PrintReads_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -41,7 +43,9 @@ rule PrintReads:
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam}
+        
+        samtools index {output.bam}
     """
       
 rule AnalyzeCovariates:
@@ -69,7 +73,8 @@ rule GATK_haplotypeCaller:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"])        
+        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
+        bai="%s/BAM/{intid}.dedub.recal.bam.bai" % (config["project-folder"])    
     output:
         "%s/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"])
     log:

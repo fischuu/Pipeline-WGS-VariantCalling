@@ -77,7 +77,8 @@ rule merge_bam_files:
             "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])],
         fake=expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
     output:
-        "%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"])
+        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
+        bai="%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"]),
     log:
         "%s/logs/Picard/merge_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -88,6 +89,8 @@ rule merge_bam_files:
                           "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]), \
                           "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])])
     shell:"""
-       java -Xmx80G -jar  /picard.jar MergeSamFiles I={params} O= {output} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
+       java -Xmx80G -jar  /picard.jar MergeSamFiles I={params} O= {output.bam} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
+       
+       samtools index {output}
     """
 
