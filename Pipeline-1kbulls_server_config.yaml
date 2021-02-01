@@ -75,10 +75,16 @@ BaseRecalibration:
     mem-per-cpu: 4000
     
 PrintReads:
-    time: 0-12:00:00
+    time: 1-0:00:00
     job-name: Print_reads
     cpus-per-task: 1
     mem-per-cpu: 80000
+
+BaseRecalibration_afterRecal:
+    time: 0-12:00:00
+    job-name: Base_recalibration_afterRecal
+    cpus-per-task: 20
+    mem-per-cpu: 4000
 
 AnalyzeCovariates:
     time: 0-12:00:00
