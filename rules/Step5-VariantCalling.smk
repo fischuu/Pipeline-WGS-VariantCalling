@@ -107,3 +107,22 @@ rule GATK_CallableLoci:
         java -Xmx15g -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
     """
 
+rule GATK_DepthOfCoverage:
+    """
+    Get the depth of coverage (GATK)
+    """
+    input:
+        ref=config["reference"],
+        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
+    output:
+        "%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage" % (config["project-folder"])
+    log:
+        "%s/logs/GATK/CallableLoci_{intid}.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/CallableLoci_{intid}.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+        java -Xmx15g -jar  -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
+        
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T DepthOfCoverage -R {input.ref} -I {input.bam} --omitDepthOutputAtEachBase --logging_level ERROR --summaryCoverageThreshold 10 --summaryCoverageThreshold 20 --summaryCoverageThreshold 30 --summaryCoverageThreshold 40 --summaryCoverageThreshold 50 --summaryCoverageThreshold 80 --summaryCoverageThreshold 90 --summaryCoverageThreshold 100 --summaryCoverageThreshold 150 --minBaseQuality 15 --minMappingQuality 30 --start 1 --stop 1000 --nBins 999 -dt NONE -o {output}
+    """

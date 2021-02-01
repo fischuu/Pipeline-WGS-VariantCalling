@@ -97,3 +97,10 @@ GATK_CallableLoci:
     job-name: GATK_callable_loci
     cpus-per-task: 1
     mem-per-cpu: 20000
+    
+GATK_DepthOfCoverage:
+    time: 04:00:00
+    job-name: GATK_DepthOfCoverage
+    cpus-per-task: 1
+    mem-per-cpu: 80000
+    
