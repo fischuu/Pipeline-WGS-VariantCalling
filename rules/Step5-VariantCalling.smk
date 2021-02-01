@@ -32,8 +32,8 @@ rule PrintReads:
         ref=config["reference"],
         recal="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     output:
-        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),        
-        bai="%s/BAM/{intid}.dedub.recal.bam.bai" % (config["project-folder"]),        
+        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),        
+        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"]),        
     log:
         "%s/logs/GATK/PrintReads_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -53,8 +53,8 @@ rule BaseRecalibration_afterRecal:
     Perform the base recalibration (PICARD)
     """
     input:
-        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.dedub.recal.bam.bai" % (config["project-folder"]),
+        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
+        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"]),
         ref=config["reference"],
         fai=config["reference-fai"],
         dict=config["reference-dict"],
@@ -99,8 +99,8 @@ rule GATK_haplotypeCaller:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.dedub.recal.bam.bai" % (config["project-folder"])    
+        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
+        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"])    
     output:
         "%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"])
     log:
@@ -120,7 +120,7 @@ rule GATK_CallableLoci:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
+        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
     output:
         summary="%s/GATK/CallableLoci/{intid}.CallableLoci.summary.txt" % (config["project-folder"]),
         bed="%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"])
@@ -139,7 +139,7 @@ rule GATK_DepthOfCoverage:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
+        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
     output:
         "%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage" % (config["project-folder"])
     log:
