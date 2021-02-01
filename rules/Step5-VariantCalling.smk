@@ -76,7 +76,7 @@ rule GATK_haplotypeCaller:
         bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
         bai="%s/BAM/{intid}.dedub.recal.bam.bai" % (config["project-folder"])    
     output:
-        "%s/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"])
+        "%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"])
     log:
         "%s/logs/GATK/HaplotypeCaller_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -122,7 +122,25 @@ rule GATK_DepthOfCoverage:
         "%s/benchmark/GATK/CallableLoci_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx15g -jar  -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
-        
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T DepthOfCoverage -R {input.ref} -I {input.bam} --omitDepthOutputAtEachBase --logging_level ERROR --summaryCoverageThreshold 10 --summaryCoverageThreshold 20 --summaryCoverageThreshold 30 --summaryCoverageThreshold 40 --summaryCoverageThreshold 50 --summaryCoverageThreshold 80 --summaryCoverageThreshold 90 --summaryCoverageThreshold 100 --summaryCoverageThreshold 150 --minBaseQuality 15 --minMappingQuality 30 --start 1 --stop 1000 --nBins 999 -dt NONE -o {output}
+    """
+
+rule GATK_combineGVCFs:
+    """
+    Get the depth of coverage (GATK)
+    """
+    input:
+        ref=config["reference"],
+        gvcfs=expand("%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]), intid=intid)
+    output:
+        "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+    log:
+        "%s/logs/GATK/combineGVCFs.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/combineGVCFs.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+    ## REMBEMBER; HERE NEEDS TO BE EACH SAMPLE GIVEN WITH --variant
+    ## YOU NEED TO FI THIS BEFORE THIS RULE CAN RUN!!!!
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} --variant {input.gcvfs} -O {output}
     """
