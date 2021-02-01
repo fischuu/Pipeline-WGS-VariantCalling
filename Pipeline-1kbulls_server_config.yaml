@@ -91,3 +91,9 @@ GATK_haplotypeCaller:
     job-name: GATK_haplotypeCaller
     cpus-per-task: 20
     mem-per-cpu: 4000
+
+GATK_CallableLoci:
+    time: 04:00:00
+    job-name: GATK_callable_loci
+    cpus-per-task: 1
+    mem-per-cpu: 20000

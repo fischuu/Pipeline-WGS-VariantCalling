@@ -31,7 +31,8 @@ rule sort_and_index:
     input:
         "%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"])
     output:
-        temp("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]))
+        temp("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"])),
+        bai=temp("%s/BAM/{rawsamples}-pe.sorted.bam.bai" % (config["project-folder"]))
     log:
         "%s/logs/Samtools/sortIndexFastq_{rawsamples}.log" % (config["project-folder"])
     benchmark:
@@ -50,7 +51,7 @@ rule mark_duplictes:
         "%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"])
     output:
         bam=temp("%s/BAM/{rawsamples}-pe.dedup.bam" % (config["project-folder"])),
-        metric="%s/BAM/{rawsamples}-pe.dedup.metrics" % (config["project-folder"])
+        metric="%s/BAM/metrics/{rawsamples}-pe.dedup.metrics" % (config["project-folder"])
     log:
         "%s/logs/Picard/Deduplicate_{rawsamples}.log" % (config["project-folder"])
     benchmark:
@@ -78,7 +79,7 @@ rule merge_bam_files:
         fake=expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
     output:
         bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"]),
+        bai="%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"])
     log:
         "%s/logs/Picard/merge_{intid}.log" % (config["project-folder"])
     benchmark:

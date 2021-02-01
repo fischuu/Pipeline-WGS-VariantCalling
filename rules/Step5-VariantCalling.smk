@@ -64,7 +64,7 @@ rule AnalyzeCovariates:
         "%s/benchmark/GATK/AnalyzeCovariates_{intid}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T AnalyzeCovariates -R {input.ref} -before {input.table} -after {output.table} -plots {output.pdf} &> {logs}
     """
 
 rule GATK_haplotypeCaller:
@@ -86,5 +86,24 @@ rule GATK_haplotypeCaller:
         threads=config["params"]["gatk"]["threads"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T HaplotypeCaller -nct {params.threads} -R {input.ref} -I {input.bam} -o {output} -ERC GVCF -variant_index_type LINEAR -variant_index_parameter 128000
+    """
+
+rule GATK_CallableLoci:
+    """
+    Get the callable loci (GATK)
+    """
+    input:
+        ref=config["reference"],
+        bam="%s/BAM/{intid}.dedub.recal.bam" % (config["project-folder"]),
+    output:
+        summary="%s/GATK/CallableLoci/{intid}.CallableLoci.summary.txt" % (config["project-folder"]),
+        bed="%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"])
+    log:
+        "%s/logs/GATK/CallableLoci_{intid}.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/CallableLoci_{intid}.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["1kbulls"]
+    shell:"""
+        java -Xmx15g -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
     """
 
