@@ -7,7 +7,8 @@ from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
 HTTP = HTTPRemoteProvider()
 
-##### RNASeq-snakemake pipeline #####
+##### WGS Variant calling snakemake pipeline #####
+##### Compliant with the 1k Bull requirements ######
 ##### Daniel Fischer (daniel.fischer@luke.fi)
 ##### Natural Resources Institute Finland (Luke)
 ##### Version: 0.1
