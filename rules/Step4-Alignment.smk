@@ -31,7 +31,7 @@ rule sort_and_index:
     input:
         "%s/SAM/{rawsamples}-pe.sam" % (config["project-folder"])
     output:
-        temp("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"])),
+        bam=temp("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"])),
         bai=temp("%s/BAM/{rawsamples}-pe.sorted.bam.bai" % (config["project-folder"]))
     log:
         "%s/logs/Samtools/sortIndexFastq_{rawsamples}.log" % (config["project-folder"])
@@ -39,8 +39,8 @@ rule sort_and_index:
         "%s/benchmark/Samtools/{rawsamples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        samtools sort -o {output} -O BAM {input}
-        samtools index {output}
+        samtools sort -o {output.bam} -O BAM {input} &> {log}
+        samtools index {output.bam}
     """
 
 rule mark_duplictes:
@@ -92,6 +92,6 @@ rule merge_bam_files:
     shell:"""
        java -Xmx80G -jar  /picard.jar MergeSamFiles I={params} O= {output.bam} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
        
-       samtools index {output}
+       samtools index {output.bam}
     """
 
