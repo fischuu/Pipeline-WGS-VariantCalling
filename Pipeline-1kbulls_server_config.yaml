@@ -12,9 +12,11 @@ __default__:
 # Step1 - Preparations
 ################################################################################
 Download_known_variants:
+    job-name: Download_known_variants
     time: 0-05:00:00
 
 Download_reference:
+    job-name: Download_reference
     time: 0-05:00:00
     
 Index_reference:
@@ -77,8 +79,8 @@ BaseRecalibration:
 PrintReads:
     time: 1-0:00:00
     job-name: Print_reads
-    cpus-per-task: 1
-    mem-per-cpu: 80000
+    cpus-per-task: 20
+    mem-per-cpu: 6000
 
 BaseRecalibration_afterRecal:
     time: 0-12:00:00

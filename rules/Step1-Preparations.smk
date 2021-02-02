@@ -12,8 +12,8 @@ rule Download_known_variants:
         url=config["urls"]["known-variants"]
     shell:"""
         wget {params.url}
-        mv `basename {params.url}` {output}
-        gunzip {output}
+        mv `basename {params.url}` {output}.gz
+        gunzip {output}.gz
   	"""    
         
 rule Download_reference:
@@ -29,8 +29,8 @@ rule Download_reference:
     params:
        url=config["urls"]["reference"]
     shell:"""
-        curl {params.url} > {output}
-        gunzip {output}
+        curl {params.url} > {output}.gz
+        gunzip {output}.gz
   	"""    
                                  
 rule Index_reference:

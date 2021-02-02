@@ -43,7 +43,7 @@ rule PrintReads:
         known=config["known-variants"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam} &> {log}
         
         samtools index {output.bam}
     """
