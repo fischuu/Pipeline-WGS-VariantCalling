@@ -177,7 +177,9 @@ rule GATK_combineGVCFs:
         "%s/benchmark/GATK/combineGVCFs.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} --variant $(echo {input.gvcfs} | sed 's/ /--variant /g') -O {output.gvcf}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} \
+                     --variant $(echo {input.gvcfs} | sed 's/ / --variant /g') \
+                     --out {output.gvcf} &> {log}
         
         md5sum {output.gvcf} > {output.md5}
     """

@@ -6,6 +6,7 @@ import os
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
 HTTP = HTTPRemoteProvider()
+shell.executable("bash")
 
 ##### WGS variant calling snakemake pipeline     #####
 ##### Compliant with the 1k Bull requirements    #####
