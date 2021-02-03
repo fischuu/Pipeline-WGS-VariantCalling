@@ -78,8 +78,8 @@ rule merge_bam_files:
             "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])],
         fake=expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
     output:
-        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"])
+        bam=temp("%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"])),
+        bai=temp("%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"]))
     log:
         "%s/logs/Picard/merge_{intid}.log" % (config["project-folder"])
     benchmark:

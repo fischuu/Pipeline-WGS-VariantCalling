@@ -33,7 +33,8 @@ rule PrintReads:
         recal="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
     output:
         bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),        
-        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"]),        
+        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"]),
+        md5="%s/BAM/{intid}.dedup.recal.bam.md5" % (config["project-folder"])
     log:
         "%s/logs/GATK/PrintReads_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -46,6 +47,7 @@ rule PrintReads:
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam} &> {log}
         
         samtools index {output.bam}
+        md5sum {output.bam} > {output.md5}
     """
 
 rule BaseRecalibration_afterRecal:
@@ -102,7 +104,8 @@ rule GATK_haplotypeCaller:
         bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
         bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"])    
     output:
-        "%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"])
+        vcf="%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]),
+        md5="%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz.md5" % (config["project-folder"])
     log:
         "%s/logs/GATK/HaplotypeCaller_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -111,7 +114,9 @@ rule GATK_haplotypeCaller:
     params:
         threads=config["params"]["gatk"]["threads"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T HaplotypeCaller -nct {params.threads} -R {input.ref} -I {input.bam} -o {output} -ERC GVCF -variant_index_type LINEAR -variant_index_parameter 128000
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T HaplotypeCaller -nct {params.threads} -R {input.ref} -I {input.bam} -o {output.vcf} -ERC GVCF -variant_index_type LINEAR -variant_index_parameter 128000
+        
+        md5sum {output.vcf} > {output.md5}
     """
 
 rule GATK_CallableLoci:
