@@ -39,7 +39,8 @@ rule all:
       expand("%s/GATK/recal/{intid}_recal_plots.pdf" % (config["project-folder"]), intid=intid),
       expand("%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]), intid=intid),
       expand("%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"]), intid=intid),
-      expand("%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage" % (config["project-folder"]), intid=intid)
+      expand("%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage" % (config["project-folder"]), intid=intid),
+      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
 
 ### setup report #####
 report: "report/workflow.rst"

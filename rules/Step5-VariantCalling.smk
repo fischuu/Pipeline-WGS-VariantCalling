@@ -128,7 +128,9 @@ rule GATK_CallableLoci:
         bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
     output:
         summary="%s/GATK/CallableLoci/{intid}.CallableLoci.summary.txt" % (config["project-folder"]),
-        bed="%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"])
+        bed="%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"]),
+        summary.md5="%s/GATK/CallableLoci/{intid}.CallableLoci.summary.txt.md5" % (config["project-folder"]),
+        bed.md5="%s/GATK/CallableLoci/{intid}.CallableLoci.bed.md5" % (config["project-folder"])
     log:
         "%s/logs/GATK/CallableLoci_{intid}.log" % (config["project-folder"])
     benchmark:
@@ -136,6 +138,9 @@ rule GATK_CallableLoci:
     singularity: config["singularity"]["1kbulls"]
     shell:"""
         java -Xmx15g -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
+        
+        md5sum {output.summary} > {output.summary.md5}
+        md5sum {output.bed} > {output.bed.md5}
     """
 
 rule GATK_DepthOfCoverage:
@@ -164,14 +169,15 @@ rule GATK_combineGVCFs:
         ref=config["reference"],
         gvcfs=expand("%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]), intid=intid)
     output:
-        "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+        vcf="%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]),
+        md5="%s/GATK/Cohort.g.vcf.gz.md5" % (config["project-folder"])
     log:
         "%s/logs/GATK/combineGVCFs.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/combineGVCFs.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
-    ## REMBEMBER; HERE NEEDS TO BE EACH SAMPLE GIVEN WITH --variant
-    ## YOU NEED TO FI THIS BEFORE THIS RULE CAN RUN!!!!
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} --variant {input.gcvfs} -O {output}
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} --variant $(echo {input.gcvfs} | sed 's/ /--variant /g') -O {output.vcf}
+        
+        md5sum {output.vcf} > {output.md5}
     """
