@@ -31,4 +31,4 @@ params:
   gatk:
     threads: 20
 singularity:
-  1kbulls: "docker://fischuu/1kbulls:0.1"
+  1kbulls: "docker://fischuu/1kbulls:0.2"
