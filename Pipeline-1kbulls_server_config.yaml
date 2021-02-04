@@ -118,3 +118,14 @@ GATK_combineGVCFs:
     job-name: GATK_combineGVCFs
     cpus-per-task: 1
     mem-per-cpu: 80000
+
+# Step 6 - Prepare Output 
+################################################################################
+
+Extract_DepthOfCoverage:
+    time: 00:00:10
+    job-name: Extract_DepthOfCoverage
+    
+Combine_DepthOfCoverage:
+    time: 00:00:10
+    job-name: Combine_DepthOfCoverage

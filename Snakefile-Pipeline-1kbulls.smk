@@ -40,7 +40,8 @@ rule all:
       expand("%s/GATK/recal/{intid}_recal_plots.pdf" % (config["project-folder"]), intid=intid),
       expand("%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]), intid=intid),
       expand("%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"]), intid=intid),
-      expand("%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage" % (config["project-folder"]), intid=intid),
+      expand("%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), intid=intid),
+#      "%s/GATK/DepthOfCoverage/Coverage.sample_summary" % (config["project-folder"]),
       "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
 
 ### setup report #####
@@ -52,3 +53,4 @@ include: "rules/Step2-Trimming.smk"
 include: "rules/Step3-QC.smk"
 include: "rules/Step4-Alignment.smk"
 include: "rules/Step5-VariantCalling.smk"
+#include: "rules/Step6-PrepareOutput.smk"
