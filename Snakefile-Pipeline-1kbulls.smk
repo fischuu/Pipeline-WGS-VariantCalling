@@ -15,7 +15,7 @@ shell.executable("bash")
 ##### Version: 0.1                               #####
 
 ##### set minimum snakemake version #####
-min_version("5.32")
+min_version("5.24")
 
 ##### load config and sample sheets #####
 
@@ -42,7 +42,7 @@ rule all:
       expand("%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"]), intid=intid),
       expand("%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), intid=intid),
 #      "%s/GATK/DepthOfCoverage/Coverage.sample_summary" % (config["project-folder"]),
-      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+#      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
 
 ### setup report #####
 report: "report/workflow.rst"
