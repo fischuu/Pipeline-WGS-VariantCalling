@@ -25,6 +25,11 @@ intid=list(samplesheet.intid)
 
 workdir: config["project-folder"]
 
+##### Complete the input configuration
+config["reference-dict"] = config["reference"]+".dict" # Here we need to remove the last file ending from reference still...
+config["reference-fai"] =  config["reference"]+".fai"
+config["reference-index"] = config["reference"]+".amb"
+
 wildcard_constraints:
     rawsamples="|".join(rawsamples),
     intid="|".join(intid)
