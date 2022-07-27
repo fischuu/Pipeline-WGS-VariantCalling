@@ -1,37 +1,43 @@
-rule Download_known_variants:
-    """
-    Download the suggested reference genome
-    """
-    output: 
-        config["known-variants"]
-    log: 
-        "%s/logs/Bash/VariantsDownload.log" % (config["project-folder"])
-    benchmark: 
-        "%s/benchmark/Bash/VariantsDownload.benchmark.tsv" % (config["project-folder"])
-    params:
-        url=config["urls"]["known-variants"]
-    shell:"""
-        wget {params.url}
-        mv `basename {params.url}` {output}.gz
-        gunzip {output}.gz
-  	"""    
-        
-rule Download_reference:
-    """
-    Download the suggested reference genome
-    """
-    output: 
-        config["reference"]
-    log:
-        "%s/logs/Bash/ReferenceDownload.log" % (config["project-folder"])
-    benchmark:
-        "%s/benchmark/Bash/ReferenceDownload.benchmark.tsv" % (config["project-folder"])
-    params:
-       url=config["urls"]["reference"]
-    shell:"""
-        curl {params.url} > {output}.gz
-        gunzip {output}.gz
-  	"""    
+if config["urls"]["known-variants"] == "":
+    pass
+else:
+    rule Download_known_variants:
+        """
+        Download the suggested reference genome
+        """
+        output: 
+            config["known-variants"]
+        log: 
+            "%s/logs/Bash/VariantsDownload.log" % (config["project-folder"])
+        benchmark: 
+            "%s/benchmark/Bash/VariantsDownload.benchmark.tsv" % (config["project-folder"])
+        params:
+            url=config["urls"]["known-variants"]
+        shell:"""
+            wget {params.url}
+            mv `basename {params.url}` {output}.gz
+            gunzip {output}.gz
+      	"""    
+     
+if config["urls"]["reference"] == "":
+    pass
+else:
+    rule Download_reference:
+        """
+        Download the suggested reference genome
+        """
+        output: 
+            config["reference"]
+        log:
+            "%s/logs/Bash/ReferenceDownload.log" % (config["project-folder"])
+        benchmark:
+            "%s/benchmark/Bash/ReferenceDownload.benchmark.tsv" % (config["project-folder"])
+        params:
+           url=config["urls"]["reference"]
+        shell:"""
+            curl {params.url} > {output}.gz
+            gunzip {output}.gz
+      	"""    
                                  
 rule Index_reference:
     """

@@ -1,12 +1,12 @@
 __default__:
     time: 00:30:00
-    job-name:  1kBulls
+    job-name:  WGS-VariantCalling
     account: project_2002561
     ntasks: 1
     cpus-per-task: 1
     mem-per-cpu: 4000
     partition: small
-    working-directory: /scratch/project_2001454/Run9/logs/
+    working-directory: /scratch/project_2002561/logs/
     nvme: 0
 
 # Step1 - Preparations
@@ -59,7 +59,7 @@ sort_and_index:
     time: 0-04:00:00
     job-name: Sort_and_Index
     
-mark_duplictes:
+mark_duplicates:
     job-name: mark_duplicates
     time: 05:00:00
     mem-per-cpu: 100000

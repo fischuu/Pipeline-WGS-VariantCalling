@@ -1,4 +1,5 @@
 project-folder: "/scratch/project_2001454/Run9"                                               # Path to the project folder
+rawdata-folder: "/scratch/project_2001454/Run9/FASTQ/RAW" 
 reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
 samplesheet: "/scratch/project_2001454/Run9/sampleSheet.tsv"
 samples: "/scratch/project_2001454/Run9/samples"

@@ -14,12 +14,14 @@ rule Align_data:
     benchmark:
         "%s/benchmark/Bwa/{rawsamples}.benchmark.tsv" % (config["project-folder"])
     params:
-        rgid = lambda wildcards: list(samplesheet.lane[samplesheet.rawsample == wildcards.rawsamples]),
+        rgid = get_lane,
         rgpl = config["params"]["bwa"]["rgpl"],
-        rgsm = lambda wildcards: list(samplesheet.intid[samplesheet.rawsample == wildcards.rawsamples]),
+        rgsm = get_sample,
         threads = config["params"]["bwa"]["threads"]
     singularity: config["singularity"]["1kbulls"]
     shell:"""
+          echo "RGID:" {params.rgid}
+          echo "RGSM:" {params.rgsm}
           bwa mem -M -t {params.threads} -R \"@RG\\tID:{params.rgid}\\tPL:{params.rgpl}\\tSM:{params.rgsm}\" \
           {input.ref} {input.R1} {input.R2} > {output} 2> {log}
   	"""
@@ -43,7 +45,7 @@ rule sort_and_index:
         samtools index {output.bam}
     """
 
-rule mark_duplictes:
+rule mark_duplicates:
     """
     Mark the duplicates in the BAM files
     """
@@ -64,34 +66,26 @@ rule mark_duplictes:
         OPTICAL_DUPLICATE_PIXEL_DISTANCE={params.dist} CREATE_INDEX=true VALIDATION_STRINGENCY=LENIENT &> {log}
     """
 
-
-# THIS IS REALLY BADLY HARD-CODED BUT FOR NOW A QUICK FIX!!!! MAKE THIS LATER NICER!!!
-
 rule merge_bam_files:
     """
     Merge the lane-wise BAM-files into sample-wise BAMs
     """
     input:
-        de=["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]),
-            "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]),
-            "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]),
-            "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])],
-        fake=expand("%s/BAM/{rawsamples}-pe.sorted.bam" % (config["project-folder"]), rawsamples=rawsamples)
+        get_duplicated_marked_bams
     output:
-        bam=temp("%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"])),
-        bai=temp("%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"]))
+        bam=temp("%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"])),
+        bai=temp("%s/BAM/{samples}.sorted.dedup.bam.bai" % (config["project-folder"]))
     log:
-        "%s/logs/Picard/merge_{intid}.log" % (config["project-folder"])
+        "%s/logs/Picard/merge_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/Picard/merge_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/Picard/merge_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
-    params: " I=".join( ["%s/BAM/{intid}_L001-pe.dedup.bam" % (config["project-folder"]), \
-                          "%s/BAM/{intid}_L002-pe.dedup.bam" % (config["project-folder"]), \
-                          "%s/BAM/{intid}_L003-pe.dedup.bam" % (config["project-folder"]), \
-                          "%s/BAM/{intid}_L004-pe.dedup.bam" % (config["project-folder"])])
+    params: " I=".join( ["%s/BAM/{samples}_L001-pe.dedup.bam" % (config["project-folder"]), \
+                          "%s/BAM/{samples}_L002-pe.dedup.bam" % (config["project-folder"]), \
+                          "%s/BAM/{samples}_L003-pe.dedup.bam" % (config["project-folder"]), \
+                          "%s/BAM/{samples}_L004-pe.dedup.bam" % (config["project-folder"])])
     shell:"""
-       java -Xmx80G -jar  /picard.jar MergeSamFiles I={params} O= {output.bam} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
+       java -Xmx80G -jar  /picard.jar MergeSamFiles {" ".join(["I=" + s for s in input])} O= {{output.bam}} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {{log}}
        
-       samtools index {output.bam}
+       samtools index {{output.bam}}
     """
-

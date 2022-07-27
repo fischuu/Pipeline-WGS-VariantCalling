@@ -3,17 +3,17 @@ rule BaseRecalibration:
     Perform the base recalibration (PICARD)
     """
     input:
-        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.sorted.dedup.bam.bai" % (config["project-folder"]),
+        bam="%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]),
+        bai="%s/BAM/{samples}.sorted.dedup.bam.bai" % (config["project-folder"]),
         ref=config["reference"],
         fai=config["reference-fai"],
         dict=config["reference-dict"],
     output:
-        "%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
+        "%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
     log:
-        "%s/logs/GATK/Recalibrate_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/Recalibrate_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/Recalibrate_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/Recalibrate_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
@@ -28,17 +28,17 @@ rule PrintReads:
     Print reads (PICARD)
     """
     input:
-        bam="%s/BAM/{intid}.sorted.dedup.bam" % (config["project-folder"]),
+        bam="%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]),
         ref=config["reference"],
-        recal="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"])
+        recal="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
     output:
-        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),        
-        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"]),
-        md5="%s/BAM/{intid}.dedup.recal.bam.md5" % (config["project-folder"])
+        bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),        
+        bai="%s/BAM/{samples}.dedup.recal.bam.bai" % (config["project-folder"]),
+        md5="%s/BAM/{samples}.dedup.recal.bam.md5" % (config["project-folder"])
     log:
-        "%s/logs/GATK/PrintReads_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/PrintReads_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/PrintReads_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/PrintReads_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
@@ -55,17 +55,17 @@ rule BaseRecalibration_afterRecal:
     Perform the base recalibration (PICARD)
     """
     input:
-        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"]),
+        bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
+        bai="%s/BAM/{samples}.dedup.recal.bam.bai" % (config["project-folder"]),
         ref=config["reference"],
         fai=config["reference-fai"],
         dict=config["reference-dict"],
     output:
-        "%s/GATK/recal/{intid}_after_recal.table" % (config["project-folder"])
+        "%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"])
     log:
-        "%s/logs/GATK/Recalibrate_after_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/Recalibrate_after_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/Recalibrate_after_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/Recalibrate_after_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
@@ -82,14 +82,14 @@ rule AnalyzeCovariates:
     """
     input:
         ref=config["reference"],
-        tableBefore="%s/GATK/recal/{intid}.recal.table" % (config["project-folder"]),
-        tableAfter="%s/GATK/recal/{intid}_after_recal.table" % (config["project-folder"])
+        tableBefore="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"]),
+        tableAfter="%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"])
     output:
-        pdf="%s/GATK/recal/{intid}_recal_plots.pdf" % (config["project-folder"])
+        pdf="%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"])
     log:
-        "%s/logs/GATK/AnalyzeCovariates_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/AnalyzeCovariates_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/AnalyzeCovariates_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/AnalyzeCovariates_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T AnalyzeCovariates -R {input.ref} -before {input.tableBefore} -after {input.tableAfter} -plots {output.pdf} &> {log}
@@ -101,15 +101,15 @@ rule GATK_haplotypeCaller:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
-        bai="%s/BAM/{intid}.dedup.recal.bam.bai" % (config["project-folder"])    
+        bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
+        bai="%s/BAM/{samples}.dedup.recal.bam.bai" % (config["project-folder"])    
     output:
-        vcf="%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]),
-        md5="%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz.md5" % (config["project-folder"])
+        vcf="%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]),
+        md5="%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz.md5" % (config["project-folder"])
     log:
-        "%s/logs/GATK/HaplotypeCaller_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/HaplotypeCaller_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/HaplotypeCaller_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/HaplotypeCaller_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     params:
         threads=config["params"]["gatk"]["threads"]
@@ -125,16 +125,16 @@ rule GATK_CallableLoci:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
+        bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
     output:
-        summary="%s/GATK/CallableLoci/{intid}.CallableLoci.summary.txt" % (config["project-folder"]),
-        bed="%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"]),
-        summarymd5="%s/GATK/CallableLoci/{intid}.CallableLoci.summary.txt.md5" % (config["project-folder"]),
-        bedmd5="%s/GATK/CallableLoci/{intid}.CallableLoci.bed.md5" % (config["project-folder"])
+        summary="%s/GATK/CallableLoci/{samples}.CallableLoci.summary.txt" % (config["project-folder"]),
+        bed="%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]),
+        summarymd5="%s/GATK/CallableLoci/{samples}.CallableLoci.summary.txt.md5" % (config["project-folder"]),
+        bedmd5="%s/GATK/CallableLoci/{samples}.CallableLoci.bed.md5" % (config["project-folder"])
     log:
-        "%s/logs/GATK/CallableLoci_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/CallableLoci_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/CallableLoci_{intid}.benchmark.tsv" % (config["project-folder"])
+        "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
         java -Xmx15g -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
@@ -149,14 +149,14 @@ rule GATK_DepthOfCoverage:
     """
     input:
         ref=config["reference"],
-        bam="%s/BAM/{intid}.dedup.recal.bam" % (config["project-folder"]),
+        bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
     output:
-        "%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage.sample_summary" % (config["project-folder"])
+        "%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"])
     log:
-        "%s/logs/GATK/CallableLoci_{intid}.log" % (config["project-folder"])
+        "%s/logs/GATK/CallableLoci_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/CallableLoci_{intid}.benchmark.tsv" % (config["project-folder"])
-    params: out="%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage" % (config["project-folder"])
+        "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
+    params: out="%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage" % (config["project-folder"])
     singularity: config["singularity"]["1kbulls"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T DepthOfCoverage -R {input.ref} -I {input.bam} --omitDepthOutputAtEachBase --logging_level ERROR --summaryCoverageThreshold 10 --summaryCoverageThreshold 20 --summaryCoverageThreshold 30 --summaryCoverageThreshold 40 --summaryCoverageThreshold 50 --summaryCoverageThreshold 80 --summaryCoverageThreshold 90 --summaryCoverageThreshold 100 --summaryCoverageThreshold 150 --minBaseQuality 15 --minMappingQuality 30 --start 1 --stop 1000 --nBins 999 -dt NONE -o {params.out} &> {log}
@@ -168,7 +168,7 @@ rule GATK_combineGVCFs:
     """
     input:
         ref=config["reference"],
-        gvcfs=expand("%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]), intid=intid)
+        gvcfs=expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples)
     output:
         gvcf="%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]),
         md5="%s/GATK/Cohort.g.vcf.gz.md5" % (config["project-folder"])

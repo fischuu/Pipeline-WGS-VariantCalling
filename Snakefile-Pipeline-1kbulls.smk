@@ -15,13 +15,14 @@ shell.executable("bash")
 ##### Version: 0.1                               #####
 
 ##### set minimum snakemake version #####
-min_version("5.24")
+min_version("6.0")
 
 ##### load config and sample sheets #####
 
 samplesheet = pd.read_table(config["samplesheet"]).set_index("rawsample", drop=False)
 rawsamples=list(samplesheet.rawsample)
-intid=list(samplesheet.intid)
+samples=list(samplesheet.sample_name)
+lane=list(samplesheet.lane)
 
 workdir: config["project-folder"]
 
@@ -32,7 +33,49 @@ config["reference-index"] = config["reference"]+".amb"
 
 wildcard_constraints:
     rawsamples="|".join(rawsamples),
-    intid="|".join(intid)
+    samples="|".join(samples)
+
+##### input checks #####
+
+# rawdata-folder needs to end with "/", add it if missing:
+# project-folder should not end with "/", so remove it
+
+##### input function definitions ######
+
+def get_lane(wildcards):
+    output = samplesheet.loc[wildcards.rawsamples][["lane"]]
+    return output.tolist()
+
+def get_sample(wildcards):
+    output = samplesheet.loc[wildcards.rawsamples][["sample_name"]]
+    return output.tolist()
+
+def get_raw_input_fastqs(wildcards):
+    reads = samplesheet.loc[wildcards.rawsamples][["read1", "read2"]]
+    path = config["rawdata-folder"]
+    output = [path + x for x in reads]
+    return output
+
+def get_raw_input_read1(wildcards):
+    reads = samplesheet.loc[wildcards.rawsamples][["read1"]]
+    path = config["rawdata-folder"]
+    output = [path + x for x in reads]
+    return output
+
+def get_raw_input_read2(wildcards):
+    reads = samplesheet.loc[wildcards.rawsamples][["read2"]]
+    path = config["rawdata-folder"]
+    output = [path + x for x in reads]
+    return output
+
+def get_duplicated_marked_bams(wildcards):
+    samplesheet.set_index("sample_name", inplace=True)
+    rs = samplesheet.loc[[wildcards.samples]]["rawsample"]
+    prefix = "-pe.dedup.bam"
+    outputPlain = [x + prefix for x in rs]
+    path = config["project-folder"] + "/BAM/"
+    output = [path + x for x in outputPlain]
+    return output
   
 ##### run complete pipeline #####
 
@@ -42,12 +85,37 @@ rule all:
       config["reference-index"],
       expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
-      expand("%s/GATK/recal/{intid}_recal_plots.pdf" % (config["project-folder"]), intid=intid),
-      expand("%s/GATK/GVCF/{intid}_dedup_recal.g.vcf.gz" % (config["project-folder"]), intid=intid),
-      expand("%s/GATK/CallableLoci/{intid}.CallableLoci.bed" % (config["project-folder"]), intid=intid),
-      expand("%s/GATK/DepthOfCoverage/{intid}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), intid=intid),
+      expand("%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
 #      "%s/GATK/DepthOfCoverage/Coverage.sample_summary" % (config["project-folder"]),
 #      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+
+rule preparations:
+    input:
+      config["known-variants"],
+      config["reference-index"],
+      config["reference-index"],
+      config["reference-dict"],
+      config["reference-fai"]
+
+rule trimming:
+    input:
+      expand("%s/FASTQ/TRIMMED/{rawsamples}.summary" % (config["project-folder"]), rawsamples=rawsamples)
+
+rule qc:
+    input:
+      expand("%s/QC/RAW/{rawsamples}_R1_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/QC/RAW/{rawsamples}_R2_001_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/QC/TRIMMED/{rawsamples}_R2_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples)
+
+rule alignment:
+    input:
+      expand("%s/BAM/metrics/{rawsamples}-pe.dedup.metrics" % (config["project-folder"]), rawsamples=rawsamples),
+      expand("%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]), samples=samples)
+
 
 ### setup report #####
 report: "report/workflow.rst"
