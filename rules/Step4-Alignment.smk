@@ -81,7 +81,7 @@ rule merge_bam_files:
         "%s/benchmark/Picard/merge_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     params:
-        input = lambda wildcards, input: ' '.join('--input ' + v for v in input)
+        input = lambda wildcards, input: ' '.join('I= ' + v for v in input)
     shell:"""
        java -Xmx80G -jar /picard.jar MergeSamFiles {params.input} O= {output.bam} VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true MERGE_SEQUENCE_DICTIONARIES=true &> {log}
        
