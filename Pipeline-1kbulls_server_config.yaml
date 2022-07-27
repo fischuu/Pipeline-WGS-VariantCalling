@@ -1,7 +1,7 @@
 __default__:
     time: 00:30:00
     job-name:  WGS-VariantCalling
-    account: project_2002561
+    account: project_2001746
     ntasks: 1
     cpus-per-task: 1
     mem-per-cpu: 4000

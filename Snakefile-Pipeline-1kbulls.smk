@@ -9,7 +9,6 @@ HTTP = HTTPRemoteProvider()
 shell.executable("bash")
 
 ##### WGS variant calling snakemake pipeline     #####
-##### Compliant with the 1k Bull requirements    #####
 ##### Daniel Fischer (daniel.fischer@luke.fi)    #####
 ##### Natural Resources Institute Finland (Luke) #####
 ##### Version: 0.1                               #####
@@ -69,6 +68,15 @@ def get_raw_input_read2(wildcards):
     return output
 
 def get_duplicated_marked_bams(wildcards):
+    rs = samplesheet.loc[samplesheet["sample_name"] == wildcards.samples]["rawsample"]
+    prefix = "-pe.dedup.bam"
+    outputPlain = [x + prefix for x in rs]
+    path = config["project-folder"] + "/BAM/"
+    output = [path + x for x in outputPlain]
+    return output
+    
+def get_duplicated_marked_bams_old(wildcards):
+    print("Considering now:"+wildcards.samples)
     samplesheet.set_index("sample_name", inplace=True)
     rs = samplesheet.loc[[wildcards.samples]]["rawsample"]
     prefix = "-pe.dedup.bam"
@@ -76,7 +84,12 @@ def get_duplicated_marked_bams(wildcards):
     path = config["project-folder"] + "/BAM/"
     output = [path + x for x in outputPlain]
     return output
-  
+    
+    
+##### Pipeline screen output #####
+
+print("Welcome to the WGS-Snakemake pipeline!") 
+    
 ##### run complete pipeline #####
 
 rule all:
@@ -114,7 +127,7 @@ rule qc:
 rule alignment:
     input:
       expand("%s/BAM/metrics/{rawsamples}-pe.dedup.metrics" % (config["project-folder"]), rawsamples=rawsamples),
-      expand("%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]), samples=samples)
+      expand("%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]), samples=samples, rawsamples=rawsamples)
 
 
 ### setup report #####

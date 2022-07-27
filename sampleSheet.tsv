@@ -1,0 +1,5 @@
+rawsample	sample_name	lane	read1	read2
+Etina_test_S12_L001	Etina_test_S12	L001	Etina_test_S12_L001_R1_001.fastq.gz	Etina_test_S12_L001_R2_001.fastq.gz
+Etina_test_S12_L002	Etina_test_S12	L002	Etina_test_S12_L002_R1_001.fastq.gz	Etina_test_S12_L002_R2_001.fastq.gz
+Lojal_test_S8_L002	Lojal_test_S8	L002	Lojal_test_S8_L002_R1_001.fastq.gz	Lojal_test_S8_L002_R2_001.fastq.gz
+Lojal_test_S8_L001	Lojal_test_S8	L001	Lojal_test_S8_L001_R1_001.fastq.gz	Lojal_test_S8_L001_R2_001.fastq.gz

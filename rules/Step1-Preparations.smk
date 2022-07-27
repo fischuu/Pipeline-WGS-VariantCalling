@@ -51,7 +51,7 @@ rule Index_reference:
         "%s/logs/Bwa/IndexReference.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Bwa/IndexReference.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         bwa index {input} &> {log}
   	"""    
@@ -69,7 +69,7 @@ rule Fai_Index_reference:
         "%s/logs/Samtools/IndexReference.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/Samtools/IndexReference.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
      java -Xmx40G -jar /picard.jar  CreateSequenceDictionary R={input} O={output.dict} &> {log}
      samtools faidx {input} &> {log}

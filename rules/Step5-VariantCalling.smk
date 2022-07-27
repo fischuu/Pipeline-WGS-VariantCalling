@@ -17,7 +17,7 @@ rule BaseRecalibration:
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T BaseRecalibrator -nct {params.threads} -R {input.ref} -I {input.bam} -knownSites: {params.known} \
         --bqsrBAQGapOpenPenalty 45 -o {output} &> {log}
@@ -42,7 +42,7 @@ rule PrintReads:
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam} &> {log}
         
@@ -69,7 +69,7 @@ rule BaseRecalibration_afterRecal:
     params:
         threads=config["params"]["gatk"]["threads"],
         known=config["known-variants"]
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T BaseRecalibrator -nct {params.threads} -R {input.ref} -I {input.bam} -knownSites: {params.known} \
         --bqsrBAQGapOpenPenalty 45 -o {output} &> {log}
@@ -90,7 +90,7 @@ rule AnalyzeCovariates:
         "%s/logs/GATK/AnalyzeCovariates_{samples}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/AnalyzeCovariates_{samples}.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T AnalyzeCovariates -R {input.ref} -before {input.tableBefore} -after {input.tableAfter} -plots {output.pdf} &> {log}
     """
@@ -110,7 +110,7 @@ rule GATK_haplotypeCaller:
         "%s/logs/GATK/HaplotypeCaller_{samples}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/HaplotypeCaller_{samples}.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     params:
         threads=config["params"]["gatk"]["threads"]
     shell:"""
@@ -135,7 +135,7 @@ rule GATK_CallableLoci:
         "%s/logs/GATK/CallableLoci_{samples}.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx15g -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
         
@@ -157,7 +157,7 @@ rule GATK_DepthOfCoverage:
     benchmark:
         "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
     params: out="%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T DepthOfCoverage -R {input.ref} -I {input.bam} --omitDepthOutputAtEachBase --logging_level ERROR --summaryCoverageThreshold 10 --summaryCoverageThreshold 20 --summaryCoverageThreshold 30 --summaryCoverageThreshold 40 --summaryCoverageThreshold 50 --summaryCoverageThreshold 80 --summaryCoverageThreshold 90 --summaryCoverageThreshold 100 --summaryCoverageThreshold 150 --minBaseQuality 15 --minMappingQuality 30 --start 1 --stop 1000 --nBins 999 -dt NONE -o {params.out} &> {log}
     """
@@ -176,7 +176,7 @@ rule GATK_combineGVCFs:
         "%s/logs/GATK/combineGVCFs.log" % (config["project-folder"])
     benchmark:
         "%s/benchmark/GATK/combineGVCFs.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} \
                      --variant $(echo {input.gvcfs} | sed 's/ / --variant /g') \

@@ -22,7 +22,7 @@ rule Trim_data:
       slidingwindow=config["params"]["trimmomatic"]["slidingwindow"],
       avgqual=config["params"]["trimmomatic"]["avgqual"],
       minlen=config["params"]["trimmomatic"]["minlen"]
-    singularity: config["singularity"]["1kbulls"]
+    singularity: config["singularity"]["wgs"]
     shell:"""
       java -jar /Trimmomatic-0.38/trimmomatic-0.38.jar PE -threads {params.threads} -summary {output.S} \
       {input} {output.R1} {output.R1S} {output.R2} {output.R2S} \

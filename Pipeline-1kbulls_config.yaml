@@ -2,7 +2,6 @@ project-folder: "/scratch/project_2001454/Run9"                                 
 rawdata-folder: "/scratch/project_2001454/Run9/FASTQ/RAW" 
 reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
 samplesheet: "/scratch/project_2001454/Run9/sampleSheet.tsv"
-samples: "/scratch/project_2001454/Run9/samples"
 known-variants: "/scratch/project_2001454/Run9/Reference/ARS1.2PlusY_BQSR_v3.vcf"
 local-scratch: $LOCAL_SCRATCH
 
@@ -29,4 +28,4 @@ params:
   gatk:
     threads: 20
 singularity:
-  1kbulls: "docker://fischuu/1kbulls:0.2"
+  wgs: "docker://fischuu/1kbulls:0.2"
