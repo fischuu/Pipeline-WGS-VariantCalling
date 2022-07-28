@@ -26,7 +26,7 @@ lane=list(samplesheet.lane)
 workdir: config["project-folder"]
 
 ##### Complete the input configuration
-config["reference-dict"] = config["reference"]+".dict" # Here we need to remove the last file ending from reference still...
+config["reference-dict"] = os.path.splitext(config["reference"])[0]+".dict"
 config["reference-fai"] =  config["reference"]+".fai"
 config["reference-index"] = config["reference"]+".amb"
 
@@ -89,6 +89,8 @@ def get_duplicated_marked_bams_old(wildcards):
 ##### Pipeline screen output #####
 
 print("Welcome to the WGS-Snakemake pipeline!") 
+print("#################################################")
+print("Reference fasta-dictionary : "+config["reference-dict"])
     
 ##### run complete pipeline #####
 
