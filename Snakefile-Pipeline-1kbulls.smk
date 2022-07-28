@@ -129,6 +129,14 @@ rule alignment:
       expand("%s/BAM/metrics/{rawsamples}-pe.dedup.metrics" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]), samples=samples, rawsamples=rawsamples)
 
+rule variantcalling:
+    input:
+      expand("%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]), samples=samples)
 
 ### setup report #####
 report: "report/workflow.rst"
