@@ -1,0 +1,143 @@
+---
+title: "WGS-Pipeline report"
+subtitle: "QC and basic stats"
+author: "Daniel Fischer"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float:
+      toc_collapsed: true
+    number_sections: true
+    theme: lumen
+    df_print: paged
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+library("GenomicTools")
+library("Luke")
+library("xtable")   # Needed for LaTeX output of the tables
+library("viridis")  # Needed for the colouring of the plots
+library("rjson")    # Needed for multiqc dgsb etail data
+library("adegenet")
+library("vcfR")
+library("DT")
+library("kableExtra")
+library("ICS")
+library("tsne")
+library("lle")
+library("kernlab")
+library("destiny")
+library("ggplot2")
+options(scipen=999,
+        stringsAsFactors=FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      cache = FALSE,
+                      cache.lazy = FALSE,
+                      dev = c('png', 'pdf'),
+                      fig.align = 'center', fig.height = 5, fig.width = 8.5)
+
+# To run locally on terminal type this command in the pipeline folder:
+# R -e "rmarkdown::render('./scripts/workflow-report.Rmd',output_file='./finalReport.html')"
+
+if(!is.element("snakemake",ls())){
+  projFolder <- "/scratch/project_2002561/MastitisDNA"
+  pipelineFolder <- "/users/fischerd/git/Pipeline-WGS-VariantCalling"
+  refGenome.file <- "/scratch/project_2002561/MastitisDNA/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
+  samplesheet.file <- "/scratch/project_2002561/MastitisDNA/sampleSheet.tsv"
+  variants.file <- "/scratch/project_2002561/MastitisDNA/Reference/ARS1.2PlusY_BQSR_v3.vcf"
+}
+refGenome.file <- basename(refGenome.file)
+```
+
+# Workflow description
+
+## Directed acyclic graph (DAG)
+
+The DAG of the used pipeline with rule dependencies.
+
+```{r import workflow, echo=FALSE, fig.cap="Overview of the applied workflow", out.width = '100%'}
+if(file.exists(file.path(projFolder,"workflow.png"))) knitr::include_graphics(file.path(projFolder,"workflow.png"))
+```
+
+
+# Basic stats
+
+```{r get pipeline version}
+pipeSMK <- readLines(file.path(pipelineFolder,"Snakefile-Pipeline-WGS.smk"))
+pipeVersion <- gsub("##### Version: ","",pipeSMK[grep("##### Version:", pipeSMK)])
+
+samplesheet <- read.table(samplesheet.file, header=TRUE)
+
+```
+
+```{r import barcodesID, results="asis"}
+
+out <- data.frame(c("Number of raw-samples",
+                    "Number of samples",
+                    "Used reference genome",
+                    "Known variants",
+                    "Pipeline version"),
+                  c(length(unique(samplesheet$rawsample)),
+                    length(unique(samplesheet$sample_name)),
+                    basename(refGenome.file),
+                    basename(variants.file),
+                    pipeVersion))
+
+out_html <- knitr::kable(out, col.names = NULL, "html")
+kable_styling(out_html, "striped", position = "left")
+```
+
+# Quality Checks
+
+## Raw data
+
+## Trimmed data
+
+## Raw vs. Trimmed data
+
+# Data description
+
+## FASTQ-Reads
+
+### Basic stats
+* Reads per sample (raw / trimmed)
+
+## Reference genome
+
+### Basic stats
+* Number of Chromosomes
+* Length
+
+### Coverage
+* Theoretical x-coverage for raw data (combined per sample)
+* Theoretical x-coverage for trimmed data (combined per sample)
+* Observed x-coverage for aligned data
+
+## Known variants
+
+### Basic stats
+* Number of variants
+* From how many chromosomes do they come
+
+# Alignment
+
+* Alignment rate per sample
+* Detailed reference coverage
+    * coverage per chromosome
+    * areas of no coverage (per sample / across samples)
+
+# Variant Calling
+
+* Distribution of variants
+    * per chromosome
+    * exact loci
+* Missingness per sample
+* Missingness per loci
+* Number of observed variants from the known ones
+* Number of additional new variants
+
+# Analysis
+* PCA from

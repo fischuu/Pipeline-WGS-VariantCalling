@@ -1,3 +1,4 @@
+pipeline-folder: "/users/fischerd/git/Pipeline-WGS-VariantCalling"
 project-folder: "/scratch/project_2001454/Run9"                                               # Path to the project folder
 rawdata-folder: "/scratch/project_2001454/Run9/FASTQ/RAW" 
 reference: "/scratch/project_2001454/Run9/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
@@ -29,3 +30,4 @@ params:
     threads: 20
 singularity:
   wgs: "docker://fischuu/1kbulls:0.2"
+  r-gbs: "docker://fischuu/r-gbs:3.6.3-0.2"

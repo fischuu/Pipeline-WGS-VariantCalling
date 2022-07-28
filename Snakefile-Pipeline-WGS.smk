@@ -1,4 +1,3 @@
-# vim: set filetype=sh :
 import pandas as pd
 from snakemake.utils import validate, min_version
 
@@ -11,7 +10,8 @@ shell.executable("bash")
 ##### WGS variant calling snakemake pipeline     #####
 ##### Daniel Fischer (daniel.fischer@luke.fi)    #####
 ##### Natural Resources Institute Finland (Luke) #####
-##### Version: 0.1                               #####
+
+##### Version: 0.1
 
 ##### set minimum snakemake version #####
 min_version("6.0")
@@ -29,6 +29,7 @@ workdir: config["project-folder"]
 config["reference-dict"] = os.path.splitext(config["reference"])[0]+".dict"
 config["reference-fai"] =  config["reference"]+".fai"
 config["reference-index"] = config["reference"]+".amb"
+config["report-script"] = config["pipeline-folder"]+"/scripts/workflow-report.Rmd"
 
 wildcard_constraints:
     rawsamples="|".join(rawsamples),
@@ -85,12 +86,7 @@ def get_duplicated_marked_bams_old(wildcards):
     output = [path + x for x in outputPlain]
     return output
     
-    
-##### Pipeline screen output #####
 
-print("Welcome to the WGS-Snakemake pipeline!") 
-print("#################################################")
-print("Reference fasta-dictionary : "+config["reference-dict"])
     
 ##### run complete pipeline #####
 
@@ -104,8 +100,9 @@ rule all:
       expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
-      "%s/GATK/DepthOfCoverage/Coverage.sample_summary" % (config["project-folder"]),
-      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+      "%s/GATK/DepthOfCoverage/Coverage.samples_summary" % (config["project-folder"]),
+      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]),
+      "%s/finalReport.html" % (config["project-folder"])
 
 rule preparations:
     input:
@@ -131,14 +128,20 @@ rule alignment:
       expand("%s/BAM/metrics/{rawsamples}-pe.dedup.metrics" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]), samples=samples, rawsamples=rawsamples)
 
-rule variantcalling:
+rule variant_calling:
     input:
       expand("%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
-      expand("%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]), samples=samples)
+      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+
+rule prepare_output:
+    input:
+      "%s/GATK/DepthOfCoverage/Coverage.samples_summary" % (config["project-folder"]),
+      "%s/finalReport.html" % (config["project-folder"])
+
 
 ### setup report #####
 report: "report/workflow.rst"
@@ -149,4 +152,4 @@ include: "rules/Step2-Trimming.smk"
 include: "rules/Step3-QC.smk"
 include: "rules/Step4-Alignment.smk"
 include: "rules/Step5-VariantCalling.smk"
-#include: "rules/Step6-PrepareOutput.smk"
+include: "rules/Step6-PrepareOutput.smk"
