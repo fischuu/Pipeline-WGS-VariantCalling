@@ -29,6 +29,7 @@ rule PrintReads:
     """
     input:
         bam="%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]),
+        bai="%s/BAM/{samples}.sorted.dedup.bam.bai" % (config["project-folder"]),
         ref=config["reference"],
         recal="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"])
     output:

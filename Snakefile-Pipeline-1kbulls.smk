@@ -104,8 +104,8 @@ rule all:
       expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
-#      "%s/GATK/DepthOfCoverage/Coverage.sample_summary" % (config["project-folder"]),
-#      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+      "%s/GATK/DepthOfCoverage/Coverage.sample_summary" % (config["project-folder"]),
+      "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
 
 rule preparations:
     input:
