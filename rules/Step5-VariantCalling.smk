@@ -204,7 +204,7 @@ rule GATK_GenotypeGVCFs:
     singularity: config["singularity"]["wgs"]
     shell:"""
         java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T GenotypeGVCFs -R {input.ref} \
-                         -V {input.gvcf}
+                         -V {input.gvcf} \
                          -O {output.vcf} &> {log}
         
         md5sum {output.vcf} > {output.md5}
