@@ -45,7 +45,7 @@ rule PrintReads:
         known=config["known-variants"]
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam} &> {log}
+        gatk --java-options '-Xmx80G' PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam} &> {log}
         
         samtools index {output.bam}
         md5sum {output.bam} > {output.md5}
@@ -72,8 +72,12 @@ rule BaseRecalibration_afterRecal:
         known=config["known-variants"]
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T BaseRecalibrator -nct {params.threads} -R {input.ref} -I {input.bam} -knownSites: {params.known} \
-        --bqsrBAQGapOpenPenalty 45 -o {output} &> {log}
+        gatk --java-options '-Xmx80G' BaseRecalibrator -nct {params.threads} \
+            -R {input.ref} \
+            -I {input.bam} \
+            -knownSites: {params.known} \
+            --bqsrBAQGapOpenPenalty 45 \
+            -o {output} &> {log}
     """
 
       
@@ -93,7 +97,11 @@ rule AnalyzeCovariates:
         "%s/benchmark/GATK/AnalyzeCovariates_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T AnalyzeCovariates -R {input.ref} -before {input.tableBefore} -after {input.tableAfter} -plots {output.pdf} &> {log}
+        gatk --java-options '-Xmx80G' AnalyzeCovariates \
+             -R {input.ref} \
+             -before {input.tableBefore} \
+             -after {input.tableAfter} \
+             -plots {output.pdf} &> {log}
     """
 
 rule GATK_haplotypeCaller:
@@ -115,7 +123,13 @@ rule GATK_haplotypeCaller:
     params:
         threads=config["params"]["gatk"]["threads"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T HaplotypeCaller -nct {params.threads} -R {input.ref} -I {input.bam} -o {output.vcf} -ERC GVCF -variant_index_type LINEAR -variant_index_parameter 128000
+        gatk --java-options '-Xmx80G' HaplotypeCaller -nct {params.threads} \
+             -R {input.ref} \
+             -I {input.bam} \
+             -o {output.vcf} \
+             -ERC GVCF \
+             -variant_index_type LINEAR \
+             -variant_index_parameter 128000
         
         md5sum {output.vcf} > {output.md5}
     """
@@ -138,7 +152,11 @@ rule GATK_CallableLoci:
         "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx15g -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CallableLoci -R {input.ref} -I {input.bam} -summary {output.summary} -o {output.bed}
+        gatk --java-options '-Xmx15g' CallableLoci \
+             -R {input.ref} \
+             -I {input.bam} \
+             -summary {output.summary} \
+             -o {output.bed}
         
         md5sum {output.summary} > {output.summarymd5}
         md5sum {output.bed} > {output.bedmd5}
@@ -160,7 +178,27 @@ rule GATK_DepthOfCoverage:
     params: out="%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T DepthOfCoverage -R {input.ref} -I {input.bam} --omitDepthOutputAtEachBase --logging_level ERROR --summaryCoverageThreshold 10 --summaryCoverageThreshold 20 --summaryCoverageThreshold 30 --summaryCoverageThreshold 40 --summaryCoverageThreshold 50 --summaryCoverageThreshold 80 --summaryCoverageThreshold 90 --summaryCoverageThreshold 100 --summaryCoverageThreshold 150 --minBaseQuality 15 --minMappingQuality 30 --start 1 --stop 1000 --nBins 999 -dt NONE -o {params.out} &> {log}
+        gatk --java-options '-Xmx80G' DepthOfCoverage \
+             -R {input.ref} \
+             -I {input.bam} \
+             --omitDepthOutputAtEachBase \
+             --logging_level ERROR \
+             --summaryCoverageThreshold 10 \
+             --summaryCoverageThreshold 20 \
+             --summaryCoverageThreshold 30 \
+             --summaryCoverageThreshold 40 \
+             --summaryCoverageThreshold 50 \
+             --summaryCoverageThreshold 80 \
+             --summaryCoverageThreshold 90 \
+             --summaryCoverageThreshold 100 \
+             --summaryCoverageThreshold 150 \
+             --minBaseQuality 15 \
+             --minMappingQuality 30 \
+             --start 1 \
+             --stop 1000 \
+             --nBins 999 \
+             -dt NONE \
+             -o {params.out} &> {log}
     """
 
 rule GATK_combineGVCFs:
@@ -179,9 +217,10 @@ rule GATK_combineGVCFs:
         "%s/benchmark/GATK/combineGVCFs.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T CombineGVCFs -R {input.ref} \
-                     --variant $(echo {input.gvcfs} | sed 's/ / --variant /g') \
-                     --out {output.gvcf} &> {log}
+        gatk --java-options '-Xmx80G' CombineGVCFs \
+             -R {input.ref} \
+             --variant $(echo {input.gvcfs} | sed 's/ / --variant /g') \
+             --out {output.gvcf} &> {log}
         
         md5sum {output.gvcf} > {output.md5}
     """
@@ -203,9 +242,10 @@ rule GATK_GenotypeGVCFs:
         "%s/benchmark/GATK/genotypeGVCFs.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T GenotypeGVCFs -R {input.ref} \
-                         -V {input.gvcf} \
-                         -O {output.vcf} &> {log}
+        gatk --java-options '-Xmx80G' GenotypeGVCFs \
+             -R {input.ref} \
+             -V {input.gvcf} \
+             --out {output.vcf} &> {log}
         
         md5sum {output.vcf} > {output.md5}
     """
@@ -226,14 +266,14 @@ rule GATK_VariantRecalibrator:
         "%s/benchmark/GATK/VariantRecalibrator.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T VariantRecalibrator \
-                         -V {input.vcf} \
-                         -mode SNP \
-                         --max-gaussians 8 \
-                         --resource:knownvariants,known=true,training=true,truth=false,prior=15 {input.variants} \
-                         -an QD -an MQRankSum -an ReadPosRankSum -an FS -an MQ -an SOR -an DP \
-                         -O {output.reca} \
-                         --tranches-file {output.tranches} &> {log}
+        gatk --java-options '-Xmx80G' VariantRecalibrator \
+             -V {input.vcf} \
+             -mode SNP \
+             --max-gaussians 8 \
+             --resource:knownvariants,known=true,training=true,truth=false,prior=15 {input.variants} \
+             -an QD -an MQRankSum -an ReadPosRankSum -an FS -an MQ -an SOR -an DP \
+             --out {output.reca} \
+             --tranches-file {output.tranches} &> {log}
     """
 
 rule GATK_ApplyVQSR:
@@ -253,12 +293,12 @@ rule GATK_ApplyVQSR:
         "%s/benchmark/GATK/VariantRecalibrator.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T ApplyVQSR \
-                         -R {input.ref} \
-                         -V {input.vcf} \
-                         -O {output.vcf} \
-                         --truth-sensitivity-filter-level 99.0 \
-                         --tranches-file {input.tranches} \
-                         --recal-file {input.reca} \
-                         -mode SNP &> {log}
+        gatk --java-options '-Xmx80G' ApplyVQSR \
+             -R {input.ref} \
+             -V {input.vcf} \
+             --out {output.vcf} \
+             --truth-sensitivity-filter-level 99.0 \
+             --tranches-file {input.tranches} \
+             --recal-file {input.reca} \
+             -mode SNP &> {log}
     """
