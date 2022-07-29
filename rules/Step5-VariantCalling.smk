@@ -210,4 +210,55 @@ rule GATK_GenotypeGVCFs:
         md5sum {output.vcf} > {output.md5}
     """
     
-    
+rule GATK_VariantRecalibrator:
+    """
+    Build a recalibration model to score variant quality for filtering purposes (GATK)
+    """
+    input:
+        vcf="%s/GATK/output.vcf.gz" % (config["project-folder"]),
+        variants=config["known-variants"]
+    output:
+        reca="%s/GATK/cohort_snps.reca" % (config["project-folder"]),
+        tranches="%s/GATK/cohort_snps.tranches" % (config["project-folder"])
+    log:
+        "%s/logs/GATK/VariantRecalibrator.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/VariantRecalibrator.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["wgs"]
+    shell:"""
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T VariantRecalibrator \
+                         -V {input.vcf} \
+                         -mode SNP \
+                         --max-gaussians 8 \
+                         --resource:knownvariants,known=true,training=true,truth=false,prior=15 {input.variants} \
+                         -an QD -an MQRankSum -an ReadPosRankSum -an FS -an MQ -an SOR -an DP \
+                         -O {output.reca} \
+                         --tranches-file {output.tranches} &> {log}
+    """
+
+rule GATK_ApplyVQSR:
+    """
+    Apply a score cutoff to filter variants based on a recalibration table (GATK)
+    """
+    input:
+        ref=config["reference"],
+        vcf="%s/GATK/output.vcf.gz" % (config["project-folder"]),
+        reca="%s/GATK/cohort_snps.reca" % (config["project-folder"]),
+        tranches="%s/GATK/cohort_snps.tranches" % (config["project-folder"])
+    output:
+        vcf="%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
+    log:
+        "%s/logs/GATK/VariantRecalibrator.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/VariantRecalibrator.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["wgs"]
+    shell:"""
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T ApplyVQSR \
+                         -R {input.ref} \
+                         -V {input.vcf} \
+                         -O {output.vcf} \
+                         --truth-sensitivity-filter-level 99.0 \
+                         --tranches-file {input.tranches} \
+                         --recal-file {input.reca} \
+                         -mode SNP &> {log}
+    """

@@ -102,6 +102,7 @@ rule all:
       expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
       "%s/GATK/DepthOfCoverage/Coverage.samples_summary" % (config["project-folder"]),
       "%s/GATK/output.vcf.gz" % (config["project-folder"]),
+      "%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
       "%s/finalReport.html" % (config["project-folder"])
 
 rule preparations:
@@ -136,7 +137,8 @@ rule variant_calling:
       expand("%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
       "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]),
-      "%s/GATK/output.vcf.gz" % (config["project-folder"])
+      "%s/GATK/output.vcf.gz" % (config["project-folder"]),
+      "%s/GATK/output.vqsr.vcf" % (config["project-folder"])
 
 rule prepare_output:
     input:
