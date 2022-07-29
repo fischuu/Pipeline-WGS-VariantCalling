@@ -185,3 +185,29 @@ rule GATK_combineGVCFs:
         
         md5sum {output.gvcf} > {output.md5}
     """
+    
+    
+rule GATK_GenotypeGVCFs:
+    """
+    Perform the genotyping (GATK)
+    """
+    input:
+        ref=config["reference"],
+        gvcf="%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"])
+    output:
+        vcf="%s/GATK/output.vcf.gz" % (config["project-folder"]),
+        md5="%s/GATK/output.vcf.gz.md5" % (config["project-folder"])
+    log:
+        "%s/logs/GATK/genotypeGVCFs.log" % (config["project-folder"])
+    benchmark:
+        "%s/benchmark/GATK/genotypeGVCFs.benchmark.tsv" % (config["project-folder"])
+    singularity: config["singularity"]["wgs"]
+    shell:"""
+        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T GenotypeGVCFs -R {input.ref} \
+                         -V {input.gvcf}
+                         -O {output.vcf} &> {log}
+        
+        md5sum {output.vcf} > {output.md5}
+    """
+    
+    
