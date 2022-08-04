@@ -28,6 +28,9 @@ params:
     distance: 2500 #100 for data generated on non-arrayed flowcells (ie from GAIIx, HiSeq1500/2000/2500), or 2500 for arrayed flowcell data (eg HiSeqX, HiSeq3000/4000, NovaSeq)
   gatk:
     threads: 20
+    bqsrBAQGapOpenPenalty: 45  # from BaseRecalibration
+    DepthOfCoverage:
+        interval: "chr1"
 singularity:
-  wgs: "docker://fischuu/wgs:0.1"
+  wgs: "docker://fischuu/wgs:0.2"
   r-gbs: "docker://fischuu/r-gbs:3.6.3-0.2"

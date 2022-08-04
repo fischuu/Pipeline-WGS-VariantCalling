@@ -77,9 +77,9 @@ BaseRecalibration:
     cpus-per-task: 20
     mem-per-cpu: 4000
     
-PrintReads:
+ApplyBQRS:
     time: 1-0:00:00
-    job-name: Print_reads
+    job-name: ApplyBQRS
     cpus-per-task: 20
     mem-per-cpu: 6000
 
@@ -100,12 +100,6 @@ GATK_haplotypeCaller:
     job-name: GATK_haplotypeCaller
     cpus-per-task: 20
     mem-per-cpu: 4000
-
-GATK_CallableLoci:
-    time: 04:00:00
-    job-name: GATK_callable_loci
-    cpus-per-task: 1
-    mem-per-cpu: 20000
     
 GATK_DepthOfCoverage:
     time: 1-00:00:00

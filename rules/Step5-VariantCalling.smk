@@ -15,17 +15,21 @@ rule BaseRecalibration:
     benchmark:
         "%s/benchmark/GATK/Recalibrate_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
-        threads=config["params"]["gatk"]["threads"],
+        bqsrBAQGapOpenPenalty=config["params"]["gatk"]["bqsrBAQGapOpenPenalty"],
         known=config["known-variants"]
     singularity: config["singularity"]["wgs"]
     shell:"""
-        java -Xmx80G -jar /GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar -T BaseRecalibrator -nct {params.threads} -R {input.ref} -I {input.bam} -knownSites: {params.known} \
-        --bqsrBAQGapOpenPenalty 45 -o {output} &> {log}
+        gatk --java-options '-Xmx80G' BaseRecalibrator \
+             -R {input.ref} \
+             -I {input.bam} \
+             --known-sites {params.known} \
+             --bqsr-baq-gap-open-penalty {params.bqsrBAQGapOpenPenalty} \
+             --output {output} &> {log}
     """
 
-rule PrintReads:
+rule ApplyBQRS:
    """
-    Print reads (PICARD)
+    Apply the model to adjust the base quality scores (PICARD)
     """
     input:
         bam="%s/BAM/{samples}.sorted.dedup.bam" % (config["project-folder"]),
@@ -37,19 +41,21 @@ rule PrintReads:
         bai="%s/BAM/{samples}.dedup.recal.bam.bai" % (config["project-folder"]),
         md5="%s/BAM/{samples}.dedup.recal.bam.md5" % (config["project-folder"])
     log:
-        "%s/logs/GATK/PrintReads_{samples}.log" % (config["project-folder"])
+        "%s/logs/GATK/ApplyBQRS_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/PrintReads_{samples}.benchmark.tsv" % (config["project-folder"])
-    params:
-        threads=config["params"]["gatk"]["threads"],
-        known=config["known-variants"]
+        "%s/benchmark/GATK/ApplyBQRS_{samples}.benchmark.tsv" % (config["project-folder"])
     singularity: config["singularity"]["wgs"]
     shell:"""
-        gatk --java-options '-Xmx80G' PrintReads -nct {params.threads} -R {input.ref} -I {input.bam} -BQSR {input.recal} -o {output.bam} &> {log}
-        
+        gatk --java-options '-Xmx80G' ApplyBQSR \
+             -I {input.bam} \
+             -R {input.ref} \
+             --bqsr-recal-file {input.recal} \
+             -O {output.bam} &> {log}
+    
         samtools index {output.bam}
         md5sum {output.bam} > {output.md5}
     """
+
 
 rule BaseRecalibration_afterRecal:
    """
@@ -68,16 +74,16 @@ rule BaseRecalibration_afterRecal:
     benchmark:
         "%s/benchmark/GATK/Recalibrate_after_{samples}.benchmark.tsv" % (config["project-folder"])
     params:
-        threads=config["params"]["gatk"]["threads"],
+        bqsrBAQGapOpenPenalty=config["params"]["gatk"]["bqsrBAQGapOpenPenalty"],
         known=config["known-variants"]
     singularity: config["singularity"]["wgs"]
     shell:"""
-        gatk --java-options '-Xmx80G' BaseRecalibrator -nct {params.threads} \
+        gatk --java-options '-Xmx80G' BaseRecalibrator \
             -R {input.ref} \
             -I {input.bam} \
-            -knownSites: {params.known} \
-            --bqsrBAQGapOpenPenalty 45 \
-            -o {output} &> {log}
+            --known-sites {params.known} \
+            --bqsr-baq-gap-open-penalty {params.bqsrBAQGapOpenPenalty} \
+            --output {output} &> {log}
     """
 
       
@@ -86,7 +92,6 @@ rule AnalyzeCovariates:
     Analyze Covariates (PICARD)
     """
     input:
-        ref=config["reference"],
         tableBefore="%s/GATK/recal/{samples}.recal.table" % (config["project-folder"]),
         tableAfter="%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"])
     output:
@@ -98,7 +103,6 @@ rule AnalyzeCovariates:
     singularity: config["singularity"]["wgs"]
     shell:"""
         gatk --java-options '-Xmx80G' AnalyzeCovariates \
-             -R {input.ref} \
              -before {input.tableBefore} \
              -after {input.tableAfter} \
              -plots {output.pdf} &> {log}
@@ -123,43 +127,13 @@ rule GATK_haplotypeCaller:
     params:
         threads=config["params"]["gatk"]["threads"]
     shell:"""
-        gatk --java-options '-Xmx80G' HaplotypeCaller -nct {params.threads} \
+        gatk --java-options '-Xmx80G' HaplotypeCaller \
              -R {input.ref} \
              -I {input.bam} \
-             -o {output.vcf} \
-             -ERC GVCF \
-             -variant_index_type LINEAR \
-             -variant_index_parameter 128000
+             --output {output.vcf} \
+             -ERC GVCF &> {log}
         
         md5sum {output.vcf} > {output.md5}
-    """
-
-rule GATK_CallableLoci:
-    """
-    Get the callable loci (GATK)
-    """
-    input:
-        ref=config["reference"],
-        bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
-    output:
-        summary="%s/GATK/CallableLoci/{samples}.CallableLoci.summary.txt" % (config["project-folder"]),
-        bed="%s/GATK/CallableLoci/{samples}.CallableLoci.bed" % (config["project-folder"]),
-        summarymd5="%s/GATK/CallableLoci/{samples}.CallableLoci.summary.txt.md5" % (config["project-folder"]),
-        bedmd5="%s/GATK/CallableLoci/{samples}.CallableLoci.bed.md5" % (config["project-folder"])
-    log:
-        "%s/logs/GATK/CallableLoci_{samples}.log" % (config["project-folder"])
-    benchmark:
-        "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
-    singularity: config["singularity"]["wgs"]
-    shell:"""
-        gatk --java-options '-Xmx15g' CallableLoci \
-             -R {input.ref} \
-             -I {input.bam} \
-             -summary {output.summary} \
-             -o {output.bed}
-        
-        md5sum {output.summary} > {output.summarymd5}
-        md5sum {output.bed} > {output.bedmd5}
     """
 
 rule GATK_DepthOfCoverage:
@@ -170,35 +144,36 @@ rule GATK_DepthOfCoverage:
         ref=config["reference"],
         bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
     output:
-        "%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"])
+        "%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage_oneChr.sample_summary" % (config["project-folder"])
     log:
-        "%s/logs/GATK/CallableLoci_{samples}.log" % (config["project-folder"])
+        "%s/logs/GATK/DepthOfCoverage_{samples}.log" % (config["project-folder"])
     benchmark:
-        "%s/benchmark/GATK/CallableLoci_{samples}.benchmark.tsv" % (config["project-folder"])
-    params: out="%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage" % (config["project-folder"])
+        "%s/benchmark/GATK/DepthOfCoverage_{samples}.benchmark.tsv" % (config["project-folder"])
+    params: 
+        out="%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage" % (config["project-folder"]),
+        chr=config["params"]["gatk"]["DepthOfCoverage"]["interval"]
     singularity: config["singularity"]["wgs"]
     shell:"""
         gatk --java-options '-Xmx80G' DepthOfCoverage \
              -R {input.ref} \
              -I {input.bam} \
-             --omitDepthOutputAtEachBase \
-             --logging_level ERROR \
-             --summaryCoverageThreshold 10 \
-             --summaryCoverageThreshold 20 \
-             --summaryCoverageThreshold 30 \
-             --summaryCoverageThreshold 40 \
-             --summaryCoverageThreshold 50 \
-             --summaryCoverageThreshold 80 \
-             --summaryCoverageThreshold 90 \
-             --summaryCoverageThreshold 100 \
-             --summaryCoverageThreshold 150 \
-             --minBaseQuality 15 \
-             --minMappingQuality 30 \
+             -L {params.chr} \
+             --omit-depth-output-at-each-base \
+             --verbosity ERROR \
+             --summary-coverage-threshold 10 \
+             --summary-coverage-threshold 20 \
+             --summary-coverage-threshold 30 \
+             --summary-coverage-threshold 40 \
+             --summary-coverage-threshold 50 \
+             --summary-coverage-threshold 80 \
+             --summary-coverage-threshold 90 \
+             --summary-coverage-threshold 100 \
+             --summary-coverage-threshold 150 \
+             --min-base-quality 15 \
              --start 1 \
              --stop 1000 \
              --nBins 999 \
-             -dt NONE \
-             -o {params.out} &> {log}
+             --output {params.out} &> {log}
     """
 
 rule GATK_combineGVCFs:
@@ -220,7 +195,7 @@ rule GATK_combineGVCFs:
         gatk --java-options '-Xmx80G' CombineGVCFs \
              -R {input.ref} \
              --variant $(echo {input.gvcfs} | sed 's/ / --variant /g') \
-             --out {output.gvcf} &> {log}
+             --output {output.gvcf} &> {log}
         
         md5sum {output.gvcf} > {output.md5}
     """
@@ -245,7 +220,7 @@ rule GATK_GenotypeGVCFs:
         gatk --java-options '-Xmx80G' GenotypeGVCFs \
              -R {input.ref} \
              -V {input.gvcf} \
-             --out {output.vcf} &> {log}
+             --output {output.vcf} &> {log}
         
         md5sum {output.vcf} > {output.md5}
     """
@@ -270,9 +245,9 @@ rule GATK_VariantRecalibrator:
              -V {input.vcf} \
              -mode SNP \
              --max-gaussians 8 \
-             --resource:knownvariants,known=true,training=true,truth=false,prior=15 {input.variants} \
+             --resource:knownvariants,known=false,training=true,truth=true,prior=15 {input.variants} \
              -an QD -an MQRankSum -an ReadPosRankSum -an FS -an MQ -an SOR -an DP \
-             --out {output.reca} \
+             --output {output.reca} \
              --tranches-file {output.tranches} &> {log}
     """
 
@@ -287,6 +262,7 @@ rule GATK_ApplyVQSR:
         tranches="%s/GATK/cohort_snps.tranches" % (config["project-folder"])
     output:
         vcf="%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
+        res="%s/RESULTS/final_variants.vcf" % (config["project-folder"])
     log:
         "%s/logs/GATK/VariantRecalibrator.log" % (config["project-folder"])
     benchmark:
@@ -296,9 +272,11 @@ rule GATK_ApplyVQSR:
         gatk --java-options '-Xmx80G' ApplyVQSR \
              -R {input.ref} \
              -V {input.vcf} \
-             --out {output.vcf} \
+             --output {output.vcf} \
              --truth-sensitivity-filter-level 99.0 \
              --tranches-file {input.tranches} \
              --recal-file {input.reca} \
              -mode SNP &> {log}
+             
+        cp {output.vcf} {output.res} 
     """
