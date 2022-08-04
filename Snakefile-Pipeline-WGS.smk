@@ -12,6 +12,7 @@ shell.executable("bash")
 ##### Natural Resources Institute Finland (Luke) #####
 
 ##### Version: 0.1
+version = "0.1"
 
 ##### set minimum snakemake version #####
 min_version("6.0")
@@ -20,7 +21,7 @@ min_version("6.0")
 
 samplesheet = pd.read_table(config["samplesheet"]).set_index("rawsample", drop=False)
 rawsamples=list(samplesheet.rawsample)
-samples=list(samplesheet.sample_name)
+samples=list(set(list(samplesheet.sample_name)))  # Unique list
 lane=list(samplesheet.lane)
 
 workdir: config["project-folder"]
@@ -86,7 +87,14 @@ def get_duplicated_marked_bams_old(wildcards):
     output = [path + x for x in outputPlain]
     return output
     
+##### Print some welcoming summary #####
 
+##### Print the welcome screen #####
+print("#################################################################################")
+print("##### Welcome to the WGS pipeline")
+print("##### version: "+version)
+print("##### Number of rawsamples: "+str(len(rawsamples)))
+print("##### Number of samples: "+str(len(samples)))
     
 ##### run complete pipeline #####
 
@@ -98,7 +106,7 @@ rule all:
       expand("%s/QC/TRIMMED/{rawsamples}_R1_fastqc.zip" % (config["project-folder"]), rawsamples=rawsamples),
       expand("%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
-      expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage_oneChr.sample_summary" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
       "%s/GATK/DepthOfCoverage/Coverage.samples_summary" % (config["project-folder"]),
       "%s/GATK/output.vcf.gz" % (config["project-folder"]),
       "%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
@@ -134,7 +142,7 @@ rule variant_calling:
       expand("%s/GATK/recal/{samples}_after_recal.table" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/recal/{samples}_recal_plots.pdf" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
-      expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage_oneChr.sample_summary" % (config["project-folder"]), samples=samples),
+      expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
       "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]),
       "%s/GATK/output.vcf.gz" % (config["project-folder"]),
       "%s/GATK/output.vqsr.vcf" % (config["project-folder"])

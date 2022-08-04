@@ -144,7 +144,7 @@ rule GATK_DepthOfCoverage:
         ref=config["reference"],
         bam="%s/BAM/{samples}.dedup.recal.bam" % (config["project-folder"]),
     output:
-        "%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage_oneChr.sample_summary" % (config["project-folder"])
+        "%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"])
     log:
         "%s/logs/GATK/DepthOfCoverage_{samples}.log" % (config["project-folder"])
     benchmark:
