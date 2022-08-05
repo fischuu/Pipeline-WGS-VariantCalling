@@ -131,6 +131,7 @@ rule GATK_haplotypeCaller:
              -R {input.ref} \
              -I {input.bam} \
              --output {output.vcf} \
+             --native-pair-hmm-threads {params.threads} \
              -ERC GVCF &> {log}
         
         md5sum {output.vcf} > {output.md5}
