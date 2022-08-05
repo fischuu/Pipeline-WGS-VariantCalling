@@ -33,4 +33,4 @@ params:
         interval: "chr1"
 singularity:
   wgs: "docker://fischuu/wgs:0.2"
-  r-gbs: "docker://fischuu/r-gbs:3.6.3-0.2"
+  r-gbs: "docker://fischuu/r-gbs:4.2.1-0.1"
