@@ -96,7 +96,7 @@ AnalyzeCovariates:
     mem-per-cpu: 80000
 
 GATK_haplotypeCaller:
-    time: 1-00:00:00
+    time: 3-00:00:00
     job-name: GATK_haplotypeCaller
     cpus-per-task: 20
     mem-per-cpu: 4000
