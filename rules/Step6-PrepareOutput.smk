@@ -30,7 +30,8 @@ rule R_finalReport:
     """
     input:
         "%s/GATK/DepthOfCoverage/Coverage.samples_summary" % (config["project-folder"]),
-        "%s/GATK/Cohort.g.vcf.gz" % (config["project-folder"]),
+        vcf="%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
+        res="%s/RESULTS/final_variants.vcf" % (config["project-folder"]),
         script=config["report-script"]
     output:
         "%s/finalReport.html" % (config["project-folder"])

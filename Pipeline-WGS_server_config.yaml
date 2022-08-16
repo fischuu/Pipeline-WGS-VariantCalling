@@ -108,7 +108,7 @@ GATK_DepthOfCoverage:
     mem-per-cpu: 80000
     
 GATK_combineGVCFs:
-    time: 1-00:00:00
+    time: 2-00:00:00
     job-name: GATK_combineGVCFs
     cpus-per-task: 1
     mem-per-cpu: 80000
@@ -146,3 +146,4 @@ Combine_DepthOfCoverage:
 R_finalReport:
     time: 00:04:00
     job-name: R_finalReport
+    mem-per-cpu: 80000

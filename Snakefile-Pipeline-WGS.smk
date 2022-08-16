@@ -108,8 +108,8 @@ rule all:
       expand("%s/GATK/GVCF/{samples}_dedup_recal.g.vcf.gz" % (config["project-folder"]), samples=samples),
       expand("%s/GATK/DepthOfCoverage/{samples}_dedup_recal.coverage.sample_summary" % (config["project-folder"]), samples=samples),
       "%s/GATK/DepthOfCoverage/Coverage.samples_summary" % (config["project-folder"]),
-      "%s/GATK/output.vcf.gz" % (config["project-folder"]),
-      "%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
+#      "%s/GATK/output.vcf.gz" % (config["project-folder"]),
+#      "%s/GATK/output.vqsr.vcf" % (config["project-folder"]),
       "%s/RESULTS/final_variants.vcf" % (config["project-folder"]),
       "%s/finalReport.html" % (config["project-folder"])
 

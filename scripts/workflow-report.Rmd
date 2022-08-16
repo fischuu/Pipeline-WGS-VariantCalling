@@ -15,6 +15,7 @@ output:
     code_folding: show
 ---
 
+
 ```{r setup, include=FALSE}
 library("GenomicTools")
 library("Luke")
@@ -46,12 +47,35 @@ if(!is.element("snakemake",ls())){
   projFolder <- "/scratch/project_2002561/MastitisDNA"
   pipelineFolder <- "/users/fischerd/git/Pipeline-WGS-VariantCalling"
   refGenome.file <- "/scratch/project_2002561/MastitisDNA/Reference/ARS-UCD1.2_Btau5.0.1Y.fa"
-  samplesheet.file <- "/scratch/project_2002561/MastitisDNA/sampleSheet.tsv"
+  samplesheet.file <- "/scratch/project_2002561/MastitisDNA/samplesheet.tsv"
   variants.file <- "/scratch/project_2002561/MastitisDNA/Reference/ARS1.2PlusY_BQSR_v3.vcf"
 }
-refGenome.file <- basename(refGenome.file)
+refGenome.filename <- basename(refGenome.file)
+report.colours <- lukeColours
 ```
 
+```{r}
+
+getConfigField <- function(x, from=pipelineConfig){
+  out <- c()
+  
+  if(length(x)==1){
+    pos <- grep(x, from)
+    out <- from[pos]
+    
+    out <- gsub(x, "", out)
+    out <- gsub('\"','',out)
+    out <- gsub(' ','',out)
+    out <- gsub(':','',out)
+    out <- gsub('#.*','',out)
+  } else {
+    # Get here the part for the subfields
+    
+  }
+  
+  out
+}
+```
 # Workflow description
 
 ## Directed acyclic graph (DAG)
@@ -69,7 +93,14 @@ if(file.exists(file.path(projFolder,"workflow.png"))) knitr::include_graphics(fi
 pipeSMK <- readLines(file.path(pipelineFolder,"Snakefile-Pipeline-WGS.smk"))
 pipeVersion <- gsub("##### Version: ","",pipeSMK[grep("##### Version:", pipeSMK)])
 
-samplesheet <- read.table(samplesheet.file, header=TRUE)
+samplesheet <- read.table(samplesheet.file, header=TRUE, sep="\t")
+
+```
+
+```{r}
+# Import already the vcf-file so that we know about the number of called variants
+
+vcf <- importVCF(file.path(projFolder, "RESULTS", "final_variants.vcf"))
 
 ```
 
@@ -79,11 +110,13 @@ out <- data.frame(c("Number of raw-samples",
                     "Number of samples",
                     "Used reference genome",
                     "Known variants",
+                    "Called variants",
                     "Pipeline version"),
                   c(length(unique(samplesheet$rawsample)),
                     length(unique(samplesheet$sample_name)),
                     basename(refGenome.file),
                     basename(variants.file),
+                    prettyNum(dim(vcf$map)[1], big.mark = ","),
                     pipeVersion))
 
 out_html <- knitr::kable(out, col.names = NULL, "html")
@@ -107,9 +140,33 @@ kable_styling(out_html, "striped", position = "left")
 
 ## Reference genome
 
+```{r import reference, results="asis"}
+ref <- importFA(refGenome.file)
+```
+
 ### Basic stats
-* Number of Chromosomes
-* Length
+
+The number of assembled chromosome is estiamted based on the length of the names (less than 6 characters) and the number of autosomes are then those of it that contain a number.
+
+```{r reference summary, results="asis"}
+chr.names <- names(ref)
+
+assembledChr <- which(nchar(chr.names)<6)
+autosomes <- which(grepl("\\d", chr.names[assembledChr]))
+ref.bases <- nchar(ref)
+
+out <- data.frame(c("Number of assembled chromosomes",
+                    "Number of autosomes",
+                    "Total number of chromosomes",
+                    "Total length (in bases)"),
+                  c(length(assembledChr),
+                    length(autosomes),
+                    length(ref),
+                    prettyNum(sum(ref.bases), big.mark=",") ))
+
+out_html <- knitr::kable(out, col.names = NULL, "html")
+kable_styling(out_html, "striped", position = "left")
+```
 
 ### Coverage
 * Theoretical x-coverage for raw data (combined per sample)
@@ -138,6 +195,32 @@ kable_styling(out_html, "striped", position = "left")
 * Missingness per loci
 * Number of observed variants from the known ones
 * Number of additional new variants
+
+```{r}
+variants.chr <- table(vcf$map[,1])
+variants.chr.assembled <- variants.chr[nchar(names(variants.chr))<6]
+```
+
+```{r}
+barplot(variants.chr, col=report.colours[1], main="Variants per Chromosome (all)")
+```
+
+```{r}
+barplot(variants.chr.assembled, col=report.colours[1], main="Variants per Chromosome")
+```
+```{r}
+# average distances between variants on chromosome
+chrInMap <- vcf$map$V1
+meanVariantDistance <- c()
+meanVariantDistance.autosome <- c()
+for(i in 1:length(chrInMap)){
+  variantsOnChr <- vcf$map[vcf$map$V1==chrInMap[i],]
+  bases.diffs <- variantsOnChr$V4[2:nrow(variantsOnChr)] -  variantsOnChr$V4[1:(nrow(variantsOnChr)-1)]  
+  meanVariantDistance[i] <- mean(bases.diffs)
+  if(nchar(chrInMap[i])<6) meanVariantDistance.autosome <- c(meanVariantDistance.autosome, mean(bases.diffs))
+}
+
+```
 
 # Analysis
 * PCA from
