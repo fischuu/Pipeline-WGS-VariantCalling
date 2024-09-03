@@ -30,7 +30,7 @@ params:
     threads: 20
     bqsrBAQGapOpenPenalty: 45  # from BaseRecalibration
     DepthOfCoverage:
-        interval: "chr1"
+        interval: "chr1"     # Be careful here, reference genomes sometimes use "chr" and sometimes without. Check your reference that this is the correct format
 singularity:
   wgs: "docker://fischuu/wgs:0.2"
   r-gbs: "docker://fischuu/r-gbs:4.2.1-0.1"

@@ -13,5 +13,5 @@ snakemake -s ~/git/Pipeline-WGS-VariantCalling/Snakefile-Pipeline-WGS.smk \
           --configfile /scratch/project_2002561/MastitisDNA/Pipeline-WGS_config.yaml \
           --latency-wait 60 \
           --cluster-config ~/git/Pipeline-WGS-VariantCalling/Pipeline-WGS_server_config.yaml \
-          --cluster "sbatch -t {cluster.time} --account={cluster.account} --gres=nvme:{cluster.nvme} --job-name={cluster.job-name} --tasks-per-node={cluster.ntasks} --cpus-per-task={cluster.cpus-per-task} --mem-per-cpu={cluster.mem-per-cpu} -p {cluster.partition} -D {cluster.working-directory}" \
-          $@
+          --cluster "sbatch -t {cluster.time} --account={cluster.account} --gres=nvme:{cluster.nvme} --job-name={cluster.job-name} --tasks-per-node={cluster.ntasks} --cpus-per-task={cluster.cpus-per-task} --mem-per-cpu={cluster.mem-per-cpu} -p {cluster.partition} -D {cluster.working-directory} --parsable" \
+          --cluster-cancel scancel $@
